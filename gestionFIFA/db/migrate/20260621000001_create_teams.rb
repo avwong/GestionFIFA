@@ -2,7 +2,7 @@ class CreateTeams < ActiveRecord::Migration[8.1]
   def change
     create_table :teams do |t|
       t.string :name, null: false
-      t.string :group_name, null: false
+      t.references :group, null: false, foreign_key: true
       t.integer :points, null: false, default: 0
       t.integer :goals_for, null: false, default: 0
       t.integer :goals_against, null: false, default: 0
@@ -14,8 +14,6 @@ class CreateTeams < ActiveRecord::Migration[8.1]
       t.timestamps
     end
 
-    # nombres unicos, busquedas por grupo
     add_index :teams, :name, unique: true
-    add_index :teams, :group_name
   end
 end

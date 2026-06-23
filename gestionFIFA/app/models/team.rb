@@ -1,10 +1,8 @@
 class Team < ApplicationRecord
-  VALID_GROUPS = %w[A B C D E F G H I J K L].freeze
+  belongs_to :group
 
   validates :name, presence: { message: "no puede estar vacío" },
                    uniqueness: { message: "ya está registrado" }
-  validates :group_name, presence: { message: "no puede estar vacío" },
-                          inclusion: { in: VALID_GROUPS, message: "debe ser un grupo válido (A–L)" }
   validates :points, :goals_for, :goals_against,
             :matches_played, :wins, :draws, :losses,
             numericality: { only_integer: true, greater_than_or_equal_to: 0,
@@ -37,16 +35,10 @@ class Team < ApplicationRecord
     order("points DESC, (goals_for - goals_against) DESC, goals_for DESC")
   }
 
-  scope :in_group, ->(group) { where(group_name: group) }
-
-  # primeros dos de cada grupo
-  def self.group_qualifiers(group)
-    in_group(group).standings.first(2)
-  end
-
   # mejores terceros para el repechaje
   def self.best_third_place_teams(n = 8)
-    groups = VALID_GROUPS.filter_map { |g| in_group(g).standings.third }
-    groups.sort_by { |t| [-t.points, -t.goal_difference, -t.goals_for] }.first(n)
+    Group::VALID_NAMES.filter_map { |name|
+      Group.find_by(name: name)&.third_place_team
+    }.sort_by { |t| [-t.points, -t.goal_difference, -t.goals_for] }.first(n)
   end
 end

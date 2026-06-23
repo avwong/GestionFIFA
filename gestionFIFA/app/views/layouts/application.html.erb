@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
   <head>
-    <title><%= content_for(:title) || "Gestion Fifa" %></title>
+    <title>Gestión FIFA 2026</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -10,6 +10,24 @@
   </head>
 
   <body>
-    <%= yield %>
+    <div class="app-container">
+      <header class="app-header">
+        <%= link_to "Equipos",      teams_path,           class: "nav-tab #{current_page?(teams_path) ? 'active' : ''}" %>
+        <%= link_to "Grupos",       groups_path,          class: "nav-tab #{current_page?(groups_path) ? 'active' : ''}" %>
+        <%= link_to "Fase de grupos", fase_grupos_path,   class: "nav-tab #{current_page?(fase_grupos_path) ? 'active' : ''}" %>
+        <%= link_to "Eliminatorias", eliminatorias_path,  class: "nav-tab #{current_page?(eliminatorias_path) ? 'active' : ''}" %>
+      </header>
+
+      <main class="view-content">
+        <% if flash[:notice] %>
+          <div class="flash-notice"><%= flash[:notice] %></div>
+        <% end %>
+        <% if flash[:alert] %>
+          <div class="flash-alert"><%= flash[:alert] %></div>
+        <% end %>
+
+        <%= yield %>
+      </main>
+    </div>
   </body>
 </html>

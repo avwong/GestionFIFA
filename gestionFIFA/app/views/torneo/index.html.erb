@@ -1,0 +1,68 @@
+<div class="action-row">
+  <h2>Mundial FIFA 2026</h2>
+</div>
+
+<!-- Sub-navegación: Fase de Grupos / Eliminación Directa -->
+<div class="sub-nav">
+  <%= link_to "Fase de Grupos", torneo_path(seccion: "fase_grupos"),
+        class: "sub-nav-tab #{@seccion == 'fase_grupos' ? 'active' : ''}" %>
+  <%= link_to "Eliminación Directa", torneo_path(seccion: "eliminacion"),
+        class: "sub-nav-tab #{@seccion == 'eliminacion' ? 'active' : ''}" %>
+</div>
+
+<% if @seccion == "fase_grupos" %>
+  <!-- ========== FASE DE GRUPOS ========== -->
+  <div class="groups-grid">
+    <% @grupos.each do |grupo| %>
+      <div class="group-card">
+        <div class="group-title">Grupo <%= grupo.nombre %></div>
+        <table class="group-table">
+          <thead>
+            <tr>
+              <th class="col-team">Equipo</th>
+              <th class="col-stat">PJ</th>
+              <th class="col-stat">PG</th>
+              <th class="col-stat">PE</th>
+              <th class="col-stat">PP</th>
+              <th class="col-stat">GF</th>
+              <th class="col-stat">GC</th>
+              <th class="col-stat">DG</th>
+              <th class="col-stat col-pts">Pts</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% grupo.tabla_posiciones.each_with_index do |equipo, idx| %>
+              <tr class="<%= idx < 2 ? 'clasificado' : '' %>">
+                <td class="col-team"><%= equipo.nombre %></td>
+                <td class="col-stat"><%= equipo.partidos_jugados %></td>
+                <td class="col-stat"><%= equipo.partidos_ganados %></td>
+                <td class="col-stat"><%= equipo.partidos_empatados %></td>
+                <td class="col-stat"><%= equipo.partidos_perdidos %></td>
+                <td class="col-stat"><%= equipo.goles_favor %></td>
+                <td class="col-stat"><%= equipo.goles_contra %></td>
+                <td class="col-stat"><%= equipo.diferencia_de_goles %></td>
+                <td class="col-stat col-pts"><%= equipo.puntos %></td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% end %>
+  </div>
+
+<% else %>
+  <!-- ========== ELIMINACIÓN DIRECTA ========== -->
+  <div class="coming-soon-wrapper">
+    <div class="coming-soon-icon">
+      <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+    </div>
+    <h3 class="coming-soon-title">Eliminación Directa</h3>
+    <p class="coming-soon-desc">
+      El bracket de eliminación directa estará disponible una vez que se completen los partidos de la fase de grupos.
+      <br>Incluirá: Dieciseisavos, Octavos, Cuartos, Semifinales, Tercer lugar y Final.
+    </p>
+  </div>
+<% end %>

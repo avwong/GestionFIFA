@@ -1,12 +1,10 @@
 Rails.application.routes.draw do
-  root "home#index"
+  root "equipos#index"
 
-  resources :teams
-  resources :groups
+  get "equipos", to: "equipos#index", as: :equipos
+  get "torneo",  to: "torneo#index",  as: :torneo
 
-  # vistas de las fases (controllers pendientes)
-  get "fase-grupos",   to: "home#index", as: :fase_grupos
-  get "eliminatorias", to: "home#index", as: :eliminatorias
+  get "en-desarrollo", to: "home#coming_soon", as: :coming_soon
 
   get "up" => "rails/health#show", as: :rails_health_check
 end

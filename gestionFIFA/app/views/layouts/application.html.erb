@@ -1,33 +1,37 @@
 <!DOCTYPE html>
 <html lang="es">
   <head>
-    <title>Gestión FIFA 2026</title>
+    <title>Sistema Gestión Mundial 2026</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="Sistema de gestión para el Mundial FIFA 2026 — México, Estados Unidos y Canadá">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
-    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
   <body>
-    <div class="app-container">
-      <header class="app-header">
-        <%= link_to "Equipos",      teams_path,           class: "nav-tab #{current_page?(teams_path) ? 'active' : ''}" %>
-        <%= link_to "Grupos",       groups_path,          class: "nav-tab #{current_page?(groups_path) ? 'active' : ''}" %>
-        <%= link_to "Fase de grupos", fase_grupos_path,   class: "nav-tab #{current_page?(fase_grupos_path) ? 'active' : ''}" %>
-        <%= link_to "Eliminatorias", eliminatorias_path,  class: "nav-tab #{current_page?(eliminatorias_path) ? 'active' : ''}" %>
+    <div class="page-wrapper">
+      <header class="site-header">
+        <h1 class="site-title">Sistema Gestión Mundial 2026</h1>
+        <nav class="app-nav">
+          <%= link_to "Equipos", equipos_path, class: "nav-tab #{controller_name == 'equipos' ? 'active' : ''}" %>
+          <%= link_to "Torneo", torneo_path, class: "nav-tab #{controller_name == 'torneo' ? 'active' : ''}" %>
+        </nav>
       </header>
 
-      <main class="view-content">
-        <% if flash[:notice] %>
-          <div class="flash-notice"><%= flash[:notice] %></div>
-        <% end %>
-        <% if flash[:alert] %>
-          <div class="flash-alert"><%= flash[:alert] %></div>
-        <% end %>
+      <% if flash[:notice] %>
+        <div class="flash-notice"><%= flash[:notice] %></div>
+      <% end %>
+      <% if flash[:alert] %>
+        <div class="flash-alert"><%= flash[:alert] %></div>
+      <% end %>
 
-        <%= yield %>
-      </main>
+      <div class="app-container">
+        <div class="view-content">
+          <%= yield %>
+        </div>
+      </div>
     </div>
   </body>
 </html>

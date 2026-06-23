@@ -1,0 +1,31 @@
+<div class="action-row">
+  <h2>Equipos</h2>
+</div>
+
+<% if @equipos.any? %>
+  <div class="equipos-list">
+    <% @equipos.each do |equipo| %>
+      <div class="list-item">
+        <div class="team-meta">
+          <div class="item-details">
+            <h3><%= equipo.nombre %></h3>
+            <p>Grupo <%= equipo.grupo.nombre %></p>
+          </div>
+        </div>
+        <div class="team-stats-row">
+          <span class="stat-pill"><%= equipo.puntos %> pts</span>
+          <span class="stat-pill"><%= equipo.goles_favor %> GF</span>
+          <span class="stat-pill stat-dg <%= equipo.diferencia_de_goles >= 0 ? 'positive' : 'negative' %>">
+            <%= equipo.diferencia_de_goles >= 0 ? '+' : '' %><%= equipo.diferencia_de_goles %> DG
+          </span>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="empty-state">
+    <div class="empty-state-icon">⚽</div>
+    <p class="empty-state-title">No hay equipos registrados</p>
+    <p class="empty-state-desc">Los equipos aparecerán aquí una vez que se registren en el sistema</p>
+  </div>
+<% end %>

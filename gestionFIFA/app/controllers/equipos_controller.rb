@@ -1,4 +1,5 @@
 class EquiposController < ApplicationController
+  skip_forgery_protection
   def index
     @equipos = Equipo.includes(:grupo).order(:nombre)
   end

@@ -57,7 +57,7 @@
       <button class="modal-close" onclick="cerrarModal()" aria-label="Cerrar">&times;</button>
     </div>
 
-    <%= form_with url: "", method: :patch, id: "form-editar-equipo", local: true do |f| %>
+    <%= form_with url: equipos_path, method: :patch, scope: :equipo, id: "form-editar-equipo", local: true, authenticity_token: true, data: { turbo: false } do |f| %>
       <div class="form-group">
         <label class="form-label">Nombre del país</label>
         <%= f.text_field :nombre, id: "campo-nombre", class: "form-input", placeholder: "Nombre del equipo" %>
@@ -121,7 +121,7 @@
       <button class="modal-close" onclick="cerrarModalCrear()" aria-label="Cerrar">&times;</button>
     </div>
 
-    <%= form_with url: equipos_path, method: :post, id: "form-crear-equipo", local: true do |f| %>
+    <%= form_with url: equipos_path, method: :post, scope: :equipo, id: "form-crear-equipo", local: true, authenticity_token: true, data: { turbo: false } do |f| %>
       <div class="form-group">
         <label class="form-label">Nombre del país</label>
         <%= f.text_field :nombre, class: "form-input", placeholder: "Nombre del equipo", required: true %>

@@ -122,7 +122,20 @@ body {
 
 .view-content {
   padding: 24px 28px;
-  min-height: 400px;
+  height: calc(100vh - 170px);
+  overflow-y: auto;
+}
+
+/* Estilizar la barra de scroll de view-content para navegadores webkit */
+.view-content::-webkit-scrollbar {
+  width: 6px;
+}
+.view-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+.view-content::-webkit-scrollbar-thumb {
+  background: var(--border-dark);
+  border-radius: 4px;
 }
 
 .action-row {

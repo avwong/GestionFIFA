@@ -122,7 +122,20 @@ body {
 
 .view-content {
   padding: 24px 28px;
-  min-height: 400px;
+  height: calc(100vh - 170px);
+  overflow-y: auto;
+}
+
+/* Estilizar la barra de scroll de view-content para navegadores webkit */
+.view-content::-webkit-scrollbar {
+  width: 6px;
+}
+.view-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+.view-content::-webkit-scrollbar-thumb {
+  background: var(--border-dark);
+  border-radius: 4px;
 }
 
 .action-row {
@@ -136,6 +149,26 @@ body {
   font-size: 16px;
   font-weight: 700;
   color: var(--black);
+}
+
+.search-input {
+  width: 220px;
+  padding: 6px 12px;
+  font-size: 13px;
+  border: 1px solid var(--border-dark);
+  border-radius: 4px;
+  background-color: var(--white);
+  color: var(--black);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-input:focus {
+  border-color: var(--green);
+}
+
+.search-input::placeholder {
+  color: var(--gray-muted);
 }
 
 /* =============================================
@@ -205,6 +238,24 @@ body {
   transition: background-color 0.15s;
 }
 
+.btn-edit {
+  background-color: var(--green);
+  border: 1px solid var(--green);
+  border-radius: 4px;
+  padding: 5px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--white);
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.btn-edit:hover {
+  background-color: var(--green-hover);
+  border-color: var(--green-hover);
+}
+
 .btn-green:hover {
   background-color: var(--green-hover);
   border-color: var(--green-hover);
@@ -234,12 +285,20 @@ body {
   background-color: var(--white);
   border: 1px solid var(--border);
   border-radius: 5px;
-  padding: 14px 18px;
+  padding: 12px 18px;
   margin-bottom: 8px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 12px;
   transition: border-color 0.15s;
+}
+
+.list-item-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
 .list-item:hover {
@@ -503,45 +562,137 @@ body {
 .modal-overlay {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0);
   display: none;
   align-items: center;
   justify-content: center;
   z-index: 100;
+  transition: background 0.2s;
+}
+
+.modal-overlay.visible {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+.modal-overlay.visible .modal-box {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .modal-box {
   background: var(--white);
   border: 1px solid var(--border);
   border-radius: 6px;
-  padding: 24px;
-  width: 340px;
+  padding: 0;
+  width: 460px;
+  max-width: calc(100vw - 32px);
+  max-height: calc(100vh - 64px);
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  opacity: 0;
+  transform: translateY(-12px);
+  transition: opacity 0.2s, transform 0.2s;
 }
 
-.modal-box h3 {
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-header h3 {
   font-size: 15px;
   font-weight: 700;
-  margin-bottom: 16px;
+  color: var(--black);
+  margin: 0;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: var(--gray-muted);
+  cursor: pointer;
+  line-height: 1;
+  padding: 0 2px;
+  transition: color 0.15s;
+}
+
+.modal-close:hover {
   color: var(--black);
 }
 
-.modal-box input,
-.modal-box select {
+/* Formulario dentro del modal */
+.modal-box form {
+  padding: 20px 24px 24px;
+}
+
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gray-text);
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.form-input {
   width: 100%;
-  padding: 8px 12px;
-  margin-bottom: 12px;
+  padding: 8px 10px;
   border: 1px solid var(--border-dark);
   border-radius: 4px;
   font-family: var(--font);
   font-size: 13px;
   color: var(--black);
   background: var(--white);
+  transition: border-color 0.15s;
 }
 
-.modal-box input:focus,
-.modal-box select:focus {
+.form-input:focus {
   outline: none;
   border-color: var(--green);
+}
+
+.form-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 18px 0 14px;
+  color: var(--gray-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.form-divider::before,
+.form-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.form-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 14px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border);
 }
 
 /* =============================================

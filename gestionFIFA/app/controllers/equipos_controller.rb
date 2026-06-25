@@ -24,12 +24,24 @@ class EquiposController < ApplicationController
     @equipo = Equipo.find(params[:id])
     nuevo_grupo_id = equipo_params[:grupo_id].to_i
 
-    # Verificar si el grupo destino ya tiene 4 equipos (y es diferente al actual)
     if nuevo_grupo_id != @equipo.grupo_id
       grupo_destino = Grupo.find(nuevo_grupo_id)
+
       if grupo_destino.equipos.count >= 4
+        # Grupo lleno — intentar intercambio
+        swap_id = params[:swap_id].to_i
+        if swap_id > 0
+          equipo_swap = Equipo.find_by(id: swap_id, grupo_id: nuevo_grupo_id)
+          if equipo_swap
+            grupo_origen_id = @equipo.grupo_id
+            @equipo.update!(equipo_params)
+            equipo_swap.update!(grupo_id: grupo_origen_id)
+            return redirect_to equipos_path,
+              notice: "Intercambio realizado: '#{@equipo.nombre}' → Grupo #{grupo_destino.nombre}, '#{equipo_swap.nombre}' → Grupo #{Grupo.find(grupo_origen_id).nombre}."
+          end
+        end
         return redirect_to equipos_path,
-          alert: "El Grupo #{grupo_destino.nombre} ya tiene 4 equipos. No se puede agregar más."
+          alert: "El Grupo #{grupo_destino.nombre} está lleno. Selecciona un equipo para intercambiar."
       end
     end
 

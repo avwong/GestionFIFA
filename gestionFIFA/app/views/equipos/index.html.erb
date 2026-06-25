@@ -66,7 +66,14 @@
       <div class="form-group">
         <label class="form-label">Grupo</label>
         <%= f.select :grupo_id, Grupo.order(:nombre).map { |g| ["Grupo #{g.nombre}", g.id] },
-              {}, { id: "campo-grupo", class: "form-input" } %>
+              {}, { id: "campo-grupo", class: "form-input", onchange: "actualizarSwap()" } %>
+      </div>
+
+      <div class="form-group" id="swap-section" style="display:none;">
+        <label class="form-label" style="color: var(--red);">Grupo lleno: intercambiar con:</label>
+        <select id="campo-swap" name="swap_id" class="form-input">
+          <option value="">Seleccione un equipo</option>
+        </select>
       </div>
 
       <div class="form-divider">
@@ -179,11 +186,25 @@
 <script>
   const BASE_URL = "<%= equipos_path %>";
 
+  // Datos de grupos para el swap
+  const GRUPOS_DATA = <%= Grupo.includes(:equipos).order(:nombre).map { |g|
+    { id: g.id, nombre: g.nombre, lleno: g.equipos.count >= 4,
+      equipos: g.equipos.map { |e| { id: e.id, nombre: e.nombre } } }
+  }.to_json.html_safe %>;
+
+  let equipoActualId = null;
+  let grupoActualId  = null;
+
   function abrirModal(id, nombre, grupoId, puntos, pj, pg, pe, pp, gf, gc) {
+    equipoActualId = id;
+    grupoActualId  = parseInt(grupoId);
+
     document.getElementById("modal-titulo").textContent = "Editar: " + nombre;
     document.getElementById("form-editar-equipo").action = BASE_URL + "/" + id;
     document.getElementById("campo-nombre").value = nombre;
     document.getElementById("campo-grupo").value = grupoId;
+    document.getElementById("campo-swap").value = "";
+    document.getElementById("swap-section").style.display = "none";
     document.getElementById("campo-pj").value = pj;
     document.getElementById("campo-puntos").value = puntos;
     document.getElementById("campo-pg").value = pg;
@@ -191,13 +212,42 @@
     document.getElementById("campo-pp").value = pp;
     document.getElementById("campo-gf").value = gf;
     document.getElementById("campo-gc").value = gc;
-
     document.getElementById("btn-borrar-equipo").href = BASE_URL + "/" + id;
 
     const overlay = document.getElementById("modal-editar");
     overlay.style.display = "flex";
-    // pequeña pausa para que la transición CSS se active
     requestAnimationFrame(() => overlay.classList.add("visible"));
+  }
+
+  function actualizarSwap() {
+    const nuevoGrupoId = parseInt(document.getElementById("campo-grupo").value);
+    const swapSection  = document.getElementById("swap-section");
+    const swapSelect   = document.getElementById("campo-swap");
+
+    // Ocultar si no cambió de grupo
+    if (nuevoGrupoId === grupoActualId) {
+      swapSection.style.display = "none";
+      swapSelect.value = "";
+      return;
+    }
+
+    const grupoDestino = GRUPOS_DATA.find(g => g.id === nuevoGrupoId);
+    if (grupoDestino && grupoDestino.lleno) {
+      // Poblar el selector con los equipos del grupo destino
+      swapSelect.innerHTML = '<option value="">— Selecciona un equipo —</option>';
+      grupoDestino.equipos
+        .filter(e => e.id !== equipoActualId)
+        .forEach(e => {
+          const opt = document.createElement("option");
+          opt.value = e.id;
+          opt.textContent = e.nombre;
+          swapSelect.appendChild(opt);
+        });
+      swapSection.style.display = "";
+    } else {
+      swapSection.style.display = "none";
+      swapSelect.value = "";
+    }
   }
 
   function cerrarModal() {

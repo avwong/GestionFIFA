@@ -3,6 +3,22 @@ class EquiposController < ApplicationController
     @equipos = Equipo.includes(:grupo).order(:nombre)
   end
 
+  def create
+    grupo_id = equipo_params[:grupo_id].to_i
+    grupo = Grupo.find_by(id: grupo_id)
+
+    if grupo && grupo.equipos.count >= 4
+      return redirect_to equipos_path, alert: "El Grupo #{grupo.nombre} ya tiene 4 equipos. No se puede añadir más."
+    end
+
+    @equipo = Equipo.new(equipo_params)
+    if @equipo.save
+      redirect_to equipos_path, notice: "Equipo '#{@equipo.nombre}' creado correctamente."
+    else
+      redirect_to equipos_path, alert: "Error al crear el equipo: #{@equipo.errors.full_messages.join(', ')}"
+    end
+  end
+
   def update
     @equipo = Equipo.find(params[:id])
     nuevo_grupo_id = equipo_params[:grupo_id].to_i
@@ -21,6 +37,13 @@ class EquiposController < ApplicationController
     else
       redirect_to equipos_path, alert: "Error al actualizar el equipo: #{@equipo.errors.full_messages.join(', ')}"
     end
+  end
+
+  def destroy
+    @equipo = Equipo.find(params[:id])
+    nombre = @equipo.nombre
+    @equipo.destroy
+    redirect_to equipos_path, notice: "Equipo '#{nombre}' borrado correctamente."
   end
 
   private

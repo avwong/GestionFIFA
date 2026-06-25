@@ -5,6 +5,16 @@ class EquiposController < ApplicationController
 
   def update
     @equipo = Equipo.find(params[:id])
+    nuevo_grupo_id = equipo_params[:grupo_id].to_i
+
+    # Verificar si el grupo destino ya tiene 4 equipos (y es diferente al actual)
+    if nuevo_grupo_id != @equipo.grupo_id
+      grupo_destino = Grupo.find(nuevo_grupo_id)
+      if grupo_destino.equipos.count >= 4
+        return redirect_to equipos_path,
+          alert: "El Grupo #{grupo_destino.nombre} ya tiene 4 equipos. No se puede agregar más."
+      end
+    end
 
     if @equipo.update(equipo_params)
       redirect_to equipos_path, notice: "Equipo '#{@equipo.nombre}' actualizado correctamente."

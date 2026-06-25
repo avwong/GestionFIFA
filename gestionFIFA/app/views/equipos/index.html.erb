@@ -43,7 +43,7 @@
   </div>
 <% else %>
   <div class="empty-state">
-    <div class="empty-state-icon">⚽</div>
+    <div class="empty-state-icon"></div>
     <p class="empty-state-title">No hay equipos registrados</p>
     <p class="empty-state-desc">Los equipos aparecerán aquí una vez que se registren en el sistema</p>
   </div>
@@ -137,7 +137,14 @@
       <div class="form-group">
         <label class="form-label">Grupo</label>
         <%= f.select :grupo_id, Grupo.order(:nombre).map { |g| ["Grupo #{g.nombre}", g.id] },
-              {}, { class: "form-input" } %>
+              { prompt: "Selecciona un grupo" }, { id: "crear-campo-grupo", class: "form-input", required: true, onchange: "actualizarReemplazo()" } %>
+      </div>
+
+      <div class="form-group" id="reemplazo-section" style="display:none;">
+        <label class="form-label" style="color: var(--red);">Grupo lleno - reemplazar y eliminar:</label>
+        <select id="campo-reemplazo" name="reemplazar_id" class="form-input">
+          <option value="">- Selecciona un equipo -</option>
+        </select>
       </div>
 
       <div class="form-divider">
@@ -234,7 +241,7 @@
     const grupoDestino = GRUPOS_DATA.find(g => g.id === nuevoGrupoId);
     if (grupoDestino && grupoDestino.lleno) {
       // Poblar el selector con los equipos del grupo destino
-      swapSelect.innerHTML = '<option value="">— Selecciona un equipo —</option>';
+      swapSelect.innerHTML = '<option value="">Selecciona un equipo</option>';
       grupoDestino.equipos
         .filter(e => e.id !== equipoActualId)
         .forEach(e => {
@@ -264,9 +271,32 @@
 
   function abrirModalCrear() {
     document.getElementById("form-crear-equipo").reset();
+    document.getElementById("reemplazo-section").style.display = "none";
+    document.getElementById("campo-reemplazo").value = "";
     const overlay = document.getElementById("modal-crear");
     overlay.style.display = "flex";
     requestAnimationFrame(() => overlay.classList.add("visible"));
+  }
+
+  function actualizarReemplazo() {
+    const grupoId        = parseInt(document.getElementById("crear-campo-grupo").value);
+    const section        = document.getElementById("reemplazo-section");
+    const select         = document.getElementById("campo-reemplazo");
+    const grupoDestino   = GRUPOS_DATA.find(g => g.id === grupoId);
+
+    if (grupoDestino && grupoDestino.lleno) {
+      select.innerHTML = '<option value="">- Selecciona un equipo -</option>';
+      grupoDestino.equipos.forEach(e => {
+        const opt = document.createElement("option");
+        opt.value = e.id;
+        opt.textContent = e.nombre;
+        select.appendChild(opt);
+      });
+      section.style.display = "";
+    } else {
+      section.style.display = "none";
+      select.value = "";
+    }
   }
 
   function cerrarModalCrear() {

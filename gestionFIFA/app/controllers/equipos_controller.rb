@@ -9,7 +9,24 @@ class EquiposController < ApplicationController
     grupo = Grupo.find_by(id: grupo_id)
 
     if grupo && grupo.equipos.count >= 4
-      return redirect_to equipos_path, alert: "El Grupo #{grupo.nombre} ya tiene 4 equipos. No se puede añadir más."
+      reemplazar_id = params[:reemplazar_id].to_i
+      if reemplazar_id > 0
+        equipo_a_reemplazar = Equipo.find_by(id: reemplazar_id, grupo_id: grupo_id)
+        if equipo_a_reemplazar
+          @equipo = Equipo.new(equipo_params)
+          begin
+            Equipo.transaction do
+              @nombre_viejo = equipo_a_reemplazar.nombre
+              equipo_a_reemplazar.destroy!
+              @equipo.save!
+            end
+            return redirect_to equipos_path, notice: "Equipo '#{@equipo.nombre}' creado correctamente, reemplazando a '#{@nombre_viejo}'."
+          rescue ActiveRecord::RecordInvalid => e
+            return redirect_to equipos_path, alert: "Error al crear/reemplazar el equipo: #{e.record.errors.full_messages.join(', ')}"
+          end
+        end
+      end
+      return redirect_to equipos_path, alert: "El Grupo #{grupo.nombre} está lleno. Selecciona un equipo para reemplazar."
     end
 
     @equipo = Equipo.new(equipo_params)

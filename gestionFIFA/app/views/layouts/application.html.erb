@@ -3,7 +3,7 @@
   <head>
     <title>Sistema Gestión Mundial 2026</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description" content="Sistema de gestión para el Mundial FIFA 2026 — México, Estados Unidos y Canadá">
+    <meta name="description" content="Sistema de gestión para el Mundial FIFA 2026 - México, Estados Unidos y Canadá">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
@@ -33,5 +33,21 @@
         </div>
       </div>
     </div>
+
+    <script>
+      // Ocultar mensajes flash automáticamente después de 5 segundos
+      function descartarFlashes() {
+        const flashes = document.querySelectorAll(".flash-notice, .flash-alert");
+        flashes.forEach(flash => {
+          setTimeout(() => {
+            flash.style.opacity = "0";
+            flash.style.transition = "opacity 0.5s ease";
+            setTimeout(() => flash.remove(), 500);
+          }, 5000);
+        });
+      }
+      document.addEventListener("DOMContentLoaded", descartarFlashes);
+      document.addEventListener("turbo:load", descartarFlashes);
+    </script>
   </body>
 </html>

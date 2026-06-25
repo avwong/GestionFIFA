@@ -1,6 +1,9 @@
 <div class="action-row">
   <h2>Equipos</h2>
-  <input type="text" id="buscador-equipos" class="search-input" placeholder="Buscar equipo" oninput="filtrarEquipos()">
+  <div style="display: flex; gap: 12px; align-items: center;">
+    <button class="btn-green" onclick="abrirModalCrear()">+ Añadir equipo</button>
+    <input type="text" id="buscador-equipos" class="search-input" placeholder="Buscar equipo..." oninput="filtrarEquipos()">
+  </div>
 </div>
 
 <% if @equipos.any? %>
@@ -40,7 +43,7 @@
   </div>
 <% else %>
   <div class="empty-state">
-    <div class="empty-state-icon">⚽</div>
+    <div class="empty-state-icon"></div>
     <p class="empty-state-title">No hay equipos registrados</p>
     <p class="empty-state-desc">Los equipos aparecerán aquí una vez que se registren en el sistema</p>
   </div>
@@ -54,7 +57,7 @@
       <button class="modal-close" onclick="cerrarModal()" aria-label="Cerrar">&times;</button>
     </div>
 
-    <%= form_with url: "", method: :patch, id: "form-editar-equipo", local: true do |f| %>
+    <%= form_with url: equipos_path, method: :patch, scope: :equipo, id: "form-editar-equipo", local: true, authenticity_token: true, data: { turbo: false } do |f| %>
       <div class="form-group">
         <label class="form-label">Nombre del país</label>
         <%= f.text_field :nombre, id: "campo-nombre", class: "form-input", placeholder: "Nombre del equipo" %>
@@ -63,7 +66,14 @@
       <div class="form-group">
         <label class="form-label">Grupo</label>
         <%= f.select :grupo_id, Grupo.order(:nombre).map { |g| ["Grupo #{g.nombre}", g.id] },
-              {}, { id: "campo-grupo", class: "form-input" } %>
+              {}, { id: "campo-grupo", class: "form-input", onchange: "actualizarSwap()" } %>
+      </div>
+
+      <div class="form-group" id="swap-section" style="display:none;">
+        <label class="form-label" style="color: var(--red);">Grupo lleno: intercambiar con:</label>
+        <select id="campo-swap" name="swap_id" class="form-input">
+          <option value="">Seleccione un equipo</option>
+        </select>
       </div>
 
       <div class="form-divider">
@@ -102,8 +112,79 @@
       </div>
 
       <div class="modal-actions">
+        <a href="#" id="btn-borrar-equipo" class="btn-red" style="margin-right: auto;" data-turbo-method="delete" data-turbo-confirm="¿Seguro que deseas borrar este equipo?">Borrar</a>
         <button type="button" class="btn-stroke" onclick="cerrarModal()">Cancelar</button>
         <%= f.submit "Guardar cambios", class: "btn-green" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- ========== MODAL DE CREACIÓN ========== -->
+<div class="modal-overlay" id="modal-crear" onclick="cerrarModalCrearSiAfuera(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Añadir equipo</h3>
+      <button class="modal-close" onclick="cerrarModalCrear()" aria-label="Cerrar">&times;</button>
+    </div>
+
+    <%= form_with url: equipos_path, method: :post, scope: :equipo, id: "form-crear-equipo", local: true, authenticity_token: true, data: { turbo: false } do |f| %>
+      <div class="form-group">
+        <label class="form-label">Nombre del país</label>
+        <%= f.text_field :nombre, class: "form-input", placeholder: "Nombre del equipo", required: true %>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Grupo</label>
+        <%= f.select :grupo_id, Grupo.order(:nombre).map { |g| ["Grupo #{g.nombre}", g.id] },
+              { prompt: "Selecciona un grupo" }, { id: "crear-campo-grupo", class: "form-input", required: true, onchange: "actualizarReemplazo()" } %>
+      </div>
+
+      <div class="form-group" id="reemplazo-section" style="display:none;">
+        <label class="form-label" style="color: var(--red);">Grupo lleno - reemplazar y eliminar:</label>
+        <select id="campo-reemplazo" name="reemplazar_id" class="form-input">
+          <option value="">- Selecciona un equipo -</option>
+        </select>
+      </div>
+
+      <div class="form-divider">
+        <span>Estadísticas iniciales</span>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Partidos jugados</label>
+          <%= f.number_field :partidos_jugados, class: "form-input", min: 0, value: 0 %>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Puntos</label>
+          <%= f.number_field :puntos, class: "form-input", min: 0, value: 0 %>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ganados</label>
+          <%= f.number_field :partidos_ganados, class: "form-input", min: 0, value: 0 %>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Empatados</label>
+          <%= f.number_field :partidos_empatados, class: "form-input", min: 0, value: 0 %>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Perdidos</label>
+          <%= f.number_field :partidos_perdidos, class: "form-input", min: 0, value: 0 %>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Goles a favor</label>
+          <%= f.number_field :goles_favor, class: "form-input", min: 0, value: 0 %>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Goles en contra</label>
+          <%= f.number_field :goles_contra, class: "form-input", min: 0, value: 0 %>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-stroke" onclick="cerrarModalCrear()">Cancelar</button>
+        <%= f.submit "Añadir equipo", class: "btn-green" %>
       </div>
     <% end %>
   </div>
@@ -112,11 +193,25 @@
 <script>
   const BASE_URL = "<%= equipos_path %>";
 
+  // Datos de grupos para el swap
+  const GRUPOS_DATA = <%= Grupo.includes(:equipos).order(:nombre).map { |g|
+    { id: g.id, nombre: g.nombre, lleno: g.equipos.count >= 4,
+      equipos: g.equipos.map { |e| { id: e.id, nombre: e.nombre } } }
+  }.to_json.html_safe %>;
+
+  let equipoActualId = null;
+  let grupoActualId  = null;
+
   function abrirModal(id, nombre, grupoId, puntos, pj, pg, pe, pp, gf, gc) {
+    equipoActualId = id;
+    grupoActualId  = parseInt(grupoId);
+
     document.getElementById("modal-titulo").textContent = "Editar: " + nombre;
     document.getElementById("form-editar-equipo").action = BASE_URL + "/" + id;
     document.getElementById("campo-nombre").value = nombre;
     document.getElementById("campo-grupo").value = grupoId;
+    document.getElementById("campo-swap").value = "";
+    document.getElementById("swap-section").style.display = "none";
     document.getElementById("campo-pj").value = pj;
     document.getElementById("campo-puntos").value = puntos;
     document.getElementById("campo-pg").value = pg;
@@ -124,11 +219,42 @@
     document.getElementById("campo-pp").value = pp;
     document.getElementById("campo-gf").value = gf;
     document.getElementById("campo-gc").value = gc;
+    document.getElementById("btn-borrar-equipo").href = BASE_URL + "/" + id;
 
     const overlay = document.getElementById("modal-editar");
     overlay.style.display = "flex";
-    // pequeña pausa para que la transición CSS se active
     requestAnimationFrame(() => overlay.classList.add("visible"));
+  }
+
+  function actualizarSwap() {
+    const nuevoGrupoId = parseInt(document.getElementById("campo-grupo").value);
+    const swapSection  = document.getElementById("swap-section");
+    const swapSelect   = document.getElementById("campo-swap");
+
+    // Ocultar si no cambió de grupo
+    if (nuevoGrupoId === grupoActualId) {
+      swapSection.style.display = "none";
+      swapSelect.value = "";
+      return;
+    }
+
+    const grupoDestino = GRUPOS_DATA.find(g => g.id === nuevoGrupoId);
+    if (grupoDestino && grupoDestino.lleno) {
+      // Poblar el selector con los equipos del grupo destino
+      swapSelect.innerHTML = '<option value="">Selecciona un equipo</option>';
+      grupoDestino.equipos
+        .filter(e => e.id !== equipoActualId)
+        .forEach(e => {
+          const opt = document.createElement("option");
+          opt.value = e.id;
+          opt.textContent = e.nombre;
+          swapSelect.appendChild(opt);
+        });
+      swapSection.style.display = "";
+    } else {
+      swapSection.style.display = "none";
+      swapSelect.value = "";
+    }
   }
 
   function cerrarModal() {
@@ -143,9 +269,54 @@
     }
   }
 
+  function abrirModalCrear() {
+    document.getElementById("form-crear-equipo").reset();
+    document.getElementById("reemplazo-section").style.display = "none";
+    document.getElementById("campo-reemplazo").value = "";
+    const overlay = document.getElementById("modal-crear");
+    overlay.style.display = "flex";
+    requestAnimationFrame(() => overlay.classList.add("visible"));
+  }
+
+  function actualizarReemplazo() {
+    const grupoId        = parseInt(document.getElementById("crear-campo-grupo").value);
+    const section        = document.getElementById("reemplazo-section");
+    const select         = document.getElementById("campo-reemplazo");
+    const grupoDestino   = GRUPOS_DATA.find(g => g.id === grupoId);
+
+    if (grupoDestino && grupoDestino.lleno) {
+      select.innerHTML = '<option value="">- Selecciona un equipo -</option>';
+      grupoDestino.equipos.forEach(e => {
+        const opt = document.createElement("option");
+        opt.value = e.id;
+        opt.textContent = e.nombre;
+        select.appendChild(opt);
+      });
+      section.style.display = "";
+    } else {
+      section.style.display = "none";
+      select.value = "";
+    }
+  }
+
+  function cerrarModalCrear() {
+    const overlay = document.getElementById("modal-crear");
+    overlay.classList.remove("visible");
+    setTimeout(() => { overlay.style.display = "none"; }, 200);
+  }
+
+  function cerrarModalCrearSiAfuera(event) {
+    if (event.target === document.getElementById("modal-crear")) {
+      cerrarModalCrear();
+    }
+  }
+
   // Cerrar con Escape
   document.addEventListener("keydown", function(e) {
-    if (e.key === "Escape") cerrarModal();
+    if (e.key === "Escape") {
+      cerrarModal();
+      cerrarModalCrear();
+    }
   });
 
   // Filtrar equipos por nombre

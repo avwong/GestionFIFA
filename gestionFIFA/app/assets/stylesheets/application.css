@@ -701,24 +701,34 @@ body {
 
 .flash-notice,
 .flash-alert {
+  position: fixed;
+  top: 24px;
+  right: 24px;
   border: 1px solid;
-  border-radius: 4px;
-  padding: 10px 16px;
-  margin-bottom: 18px;
-  font-size: 13px;
-  font-weight: 500;
+  border-radius: 6px;
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+  z-index: 10000;
+  animation: slideInRight 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
 }
 
 .flash-notice {
-  background-color: var(--green-light);
+  background-color: var(--green);
   border-color: var(--green);
-  color: var(--green);
+  color: var(--white);
 }
 
 .flash-alert {
-  background-color: var(--red-light);
+  background-color: var(--red);
   border-color: var(--red);
-  color: var(--red);
+  color: var(--white);
 }
 
 /* =============================================

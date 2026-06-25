@@ -151,6 +151,26 @@ body {
   color: var(--black);
 }
 
+.search-input {
+  width: 220px;
+  padding: 6px 12px;
+  font-size: 13px;
+  border: 1px solid var(--border-dark);
+  border-radius: 4px;
+  background-color: var(--white);
+  color: var(--black);
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.search-input:focus {
+  border-color: var(--green);
+}
+
+.search-input::placeholder {
+  color: var(--gray-muted);
+}
+
 /* =============================================
    SUB-NAVEGACIÓN (dentro de Torneo)
    ============================================= */

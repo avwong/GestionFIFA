@@ -1,5 +1,6 @@
 <div class="action-row">
   <h2>Equipos</h2>
+  <input type="text" id="buscador-equipos" class="search-input" placeholder="Buscar equipo" oninput="filtrarEquipos()">
 </div>
 
 <% if @equipos.any? %>
@@ -146,4 +147,14 @@
   document.addEventListener("keydown", function(e) {
     if (e.key === "Escape") cerrarModal();
   });
+
+  // Filtrar equipos por nombre
+  function filtrarEquipos() {
+    const texto = document.getElementById("buscador-equipos").value.toLowerCase();
+    const filas = document.querySelectorAll(".equipos-list .list-item");
+    filas.forEach(function(fila) {
+      const nombre = fila.querySelector("h3").textContent.toLowerCase();
+      fila.style.display = nombre.includes(texto) ? "" : "none";
+    });
+  }
 </script>

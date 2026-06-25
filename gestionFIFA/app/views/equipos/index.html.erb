@@ -12,12 +12,27 @@
             <p>Grupo <%= equipo.grupo.nombre %></p>
           </div>
         </div>
-        <div class="team-stats-row">
-          <span class="stat-pill"><%= equipo.puntos %> pts</span>
-          <span class="stat-pill"><%= equipo.goles_favor %> GF</span>
-          <span class="stat-pill stat-dg <%= equipo.diferencia_de_goles >= 0 ? 'positive' : 'negative' %>">
-            <%= equipo.diferencia_de_goles >= 0 ? '+' : '' %><%= equipo.diferencia_de_goles %> DG
-          </span>
+        <div class="list-item-right">
+          <div class="team-stats-row">
+            <span class="stat-pill"><%= equipo.puntos %> pts</span>
+            <span class="stat-pill"><%= equipo.goles_favor %> GF</span>
+            <span class="stat-pill stat-dg <%= equipo.diferencia_de_goles >= 0 ? 'positive' : 'negative' %>">
+              <%= equipo.diferencia_de_goles >= 0 ? '+' : '' %><%= equipo.diferencia_de_goles %> DG
+            </span>
+          </div>
+          <button class="btn-edit"
+                  onclick="abrirModal(<%= equipo.id %>,
+                    '<%= j equipo.nombre %>',
+                    '<%= equipo.grupo_id %>',
+                    <%= equipo.puntos %>,
+                    <%= equipo.partidos_jugados %>,
+                    <%= equipo.partidos_ganados %>,
+                    <%= equipo.partidos_empatados %>,
+                    <%= equipo.partidos_perdidos %>,
+                    <%= equipo.goles_favor %>,
+                    <%= equipo.goles_contra %>)">
+            Editar
+          </button>
         </div>
       </div>
     <% end %>
@@ -29,3 +44,106 @@
     <p class="empty-state-desc">Los equipos aparecerán aquí una vez que se registren en el sistema</p>
   </div>
 <% end %>
+
+<!-- ========== MODAL DE EDICIÓN ========== -->
+<div class="modal-overlay" id="modal-editar" onclick="cerrarModalSiAfuera(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modal-titulo">Editar equipo</h3>
+      <button class="modal-close" onclick="cerrarModal()" aria-label="Cerrar">&times;</button>
+    </div>
+
+    <%= form_with url: "", method: :patch, id: "form-editar-equipo", local: true do |f| %>
+      <div class="form-group">
+        <label class="form-label">Nombre del país</label>
+        <%= f.text_field :nombre, id: "campo-nombre", class: "form-input", placeholder: "Nombre del equipo" %>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Grupo</label>
+        <%= f.select :grupo_id, Grupo.order(:nombre).map { |g| ["Grupo #{g.nombre}", g.id] },
+              {}, { id: "campo-grupo", class: "form-input" } %>
+      </div>
+
+      <div class="form-divider">
+        <span>Estadísticas</span>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Partidos jugados</label>
+          <%= f.number_field :partidos_jugados, id: "campo-pj", class: "form-input", min: 0 %>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Puntos</label>
+          <%= f.number_field :puntos, id: "campo-puntos", class: "form-input", min: 0 %>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ganados</label>
+          <%= f.number_field :partidos_ganados, id: "campo-pg", class: "form-input", min: 0 %>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Empatados</label>
+          <%= f.number_field :partidos_empatados, id: "campo-pe", class: "form-input", min: 0 %>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Perdidos</label>
+          <%= f.number_field :partidos_perdidos, id: "campo-pp", class: "form-input", min: 0 %>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Goles a favor</label>
+          <%= f.number_field :goles_favor, id: "campo-gf", class: "form-input", min: 0 %>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Goles en contra</label>
+          <%= f.number_field :goles_contra, id: "campo-gc", class: "form-input", min: 0 %>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-stroke" onclick="cerrarModal()">Cancelar</button>
+        <%= f.submit "Guardar cambios", class: "btn-green" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  const BASE_URL = "<%= equipos_path %>";
+
+  function abrirModal(id, nombre, grupoId, puntos, pj, pg, pe, pp, gf, gc) {
+    document.getElementById("modal-titulo").textContent = "Editar: " + nombre;
+    document.getElementById("form-editar-equipo").action = BASE_URL + "/" + id;
+    document.getElementById("campo-nombre").value = nombre;
+    document.getElementById("campo-grupo").value = grupoId;
+    document.getElementById("campo-pj").value = pj;
+    document.getElementById("campo-puntos").value = puntos;
+    document.getElementById("campo-pg").value = pg;
+    document.getElementById("campo-pe").value = pe;
+    document.getElementById("campo-pp").value = pp;
+    document.getElementById("campo-gf").value = gf;
+    document.getElementById("campo-gc").value = gc;
+
+    const overlay = document.getElementById("modal-editar");
+    overlay.style.display = "flex";
+    // pequeña pausa para que la transición CSS se active
+    requestAnimationFrame(() => overlay.classList.add("visible"));
+  }
+
+  function cerrarModal() {
+    const overlay = document.getElementById("modal-editar");
+    overlay.classList.remove("visible");
+    setTimeout(() => { overlay.style.display = "none"; }, 200);
+  }
+
+  function cerrarModalSiAfuera(event) {
+    if (event.target === document.getElementById("modal-editar")) {
+      cerrarModal();
+    }
+  }
+
+  // Cerrar con Escape
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") cerrarModal();
+  });
+</script>

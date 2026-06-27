@@ -1,0 +1,215 @@
+<%
+  letras_usadas   = @grupos.map(&:nombre)
+  letras_libres   = Grupo::NOMBRES_VALIDOS - letras_usadas
+  grupos_llenos   = letras_libres.empty?
+%>
+
+<div class="action-row">
+  <h2>Grupos</h2>
+  <% if grupos_llenos %>
+    <span class="stat-pill">12 / 12 grupos creados</span>
+  <% else %>
+    <button class="btn-green" onclick="abrirModalCrear()">+ Añadir grupo</button>
+  <% end %>
+</div>
+
+<% if @grupos.any? %>
+  <div class="grupos-list">
+    <% @grupos.each do |grupo| %>
+      <div class="list-item">
+        <div class="team-meta">
+          <div class="grupo-badge"><%= grupo.nombre %></div>
+          <div class="item-details">
+            <h3>Grupo <%= grupo.nombre %></h3>
+            <p><%= grupo.equipos.size %> / 4 equipo(s)</p>
+          </div>
+        </div>
+
+        <div class="list-item-right">
+          <div class="grupo-equipos-row">
+            <% grupo.equipos.order(:nombre).each do |equipo| %>
+              <span class="stat-pill"><%= equipo.nombre %></span>
+            <% end %>
+            <% (4 - grupo.equipos.size).times do %>
+              <span class="stat-pill grupo-vacio-pill">vacío</span>
+            <% end %>
+          </div>
+          <button class="btn-edit"
+                  onclick="abrirModal(<%= grupo.id %>, '<%= j grupo.nombre %>', <%= grupo.equipos.size %>)">
+            Editar
+          </button>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="empty-state">
+    <div class="empty-state-icon">
+      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="2"/>
+        <path d="M9 9h6M9 12h6M9 15h4"/>
+      </svg>
+    </div>
+    <p class="empty-state-title">No hay grupos registrados</p>
+    <p class="empty-state-desc">Crea los 12 grupos del torneo (A–L) para organizar los equipos</p>
+  </div>
+<% end %>
+
+<!--  MODAL EDITAR  -->
+<div class="modal-overlay" id="modal-editar" onclick="cerrarModalSiAfuera(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 id="modal-titulo">Editar grupo</h3>
+      <button class="modal-close" onclick="cerrarModal()" aria-label="Cerrar">&times;</button>
+    </div>
+
+    <%= form_with url: grupos_path, method: :patch, scope: :grupo, id: "form-editar-grupo",
+          local: true, authenticity_token: true, data: { turbo: false } do |f| %>
+      <div class="form-group">
+        <label class="form-label">Letra del grupo</label>
+        <%= f.select :nombre,
+              Grupo::NOMBRES_VALIDOS.map { |l| [l, l] },
+              {},
+              { id: "campo-nombre-editar", class: "form-input" } %>
+      </div>
+
+      <div id="aviso-equipos" class="form-aviso-red" style="display:none;">
+        Al cambiar el nombre solo se renombra el grupo; los equipos permanecen.
+      </div>
+
+      <div class="modal-actions">
+        <a href="#" id="btn-borrar-grupo" class="btn-red" style="margin-right: auto;"
+           data-turbo-method="delete"
+           data-turbo-confirm="¿Seguro que deseas eliminar este grupo? También se eliminarán sus equipos.">
+          Borrar
+        </a>
+        <button type="button" class="btn-stroke" onclick="cerrarModal()">Cancelar</button>
+        <%= f.submit "Guardar cambios", class: "btn-green" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<!-- ========== MODAL CREAR ========== -->
+<div class="modal-overlay" id="modal-crear" onclick="cerrarModalCrearSiAfuera(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3>Añadir grupo</h3>
+      <button class="modal-close" onclick="cerrarModalCrear()" aria-label="Cerrar">&times;</button>
+    </div>
+
+    <%= form_with url: grupos_path, method: :post, scope: :grupo, id: "form-crear-grupo",
+          local: true, authenticity_token: true, data: { turbo: false } do |f| %>
+      <div class="form-group">
+        <label class="form-label">Letra del grupo</label>
+        <% if letras_libres.any? %>
+          <%= f.select :nombre,
+                letras_libres.map { |l| [l, l] },
+                { prompt: "Selecciona una letra" },
+                { class: "form-input", required: true } %>
+        <% else %>
+          <p style="font-size:13px; color: var(--gray-muted);">Ya existen los 12 grupos (A–L).</p>
+        <% end %>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn-stroke" onclick="cerrarModalCrear()">Cancelar</button>
+        <%= f.submit "Crear grupo", class: "btn-green", disabled: letras_libres.empty? %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<style>
+  .grupos-list { display: flex; flex-direction: column; gap: 0; }
+
+  .grupo-badge {
+    width: 44px;
+    height: 44px;
+    background-color: var(--green);
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--white);
+    flex-shrink: 0;
+  }
+
+  .grupo-equipos-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    max-width: 460px;
+    justify-content: flex-end;
+  }
+
+  .grupo-vacio-pill {
+    color: var(--gray-muted);
+    border-style: dashed;
+    font-style: italic;
+  }
+
+  .form-aviso-red {
+    font-size: 12px;
+    color: var(--red);
+    background-color: var(--red-light);
+    border: 1px solid var(--red);
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-bottom: 10px;
+  }
+</style>
+
+<script>
+  const GRUPOS_URL = "<%= grupos_path %>";
+  const LETRAS_USADAS = <%= letras_usadas.to_json.html_safe %>;
+
+  function abrirModal(id, nombre, numEquipos) {
+    document.getElementById("modal-titulo").textContent = "Editar: Grupo " + nombre;
+    document.getElementById("form-editar-grupo").action = GRUPOS_URL + "/" + id;
+    document.getElementById("campo-nombre-editar").value = nombre;
+
+    const aviso = document.getElementById("aviso-equipos");
+    aviso.style.display = numEquipos > 0 ? "" : "none";
+
+    const btnBorrar = document.getElementById("btn-borrar-grupo");
+    btnBorrar.href = GRUPOS_URL + "/" + id;
+
+    const overlay = document.getElementById("modal-editar");
+    overlay.style.display = "flex";
+    requestAnimationFrame(() => overlay.classList.add("visible"));
+  }
+
+  function cerrarModal() {
+    const overlay = document.getElementById("modal-editar");
+    overlay.classList.remove("visible");
+    setTimeout(() => { overlay.style.display = "none"; }, 200);
+  }
+
+  function cerrarModalSiAfuera(event) {
+    if (event.target === document.getElementById("modal-editar")) cerrarModal();
+  }
+
+  function abrirModalCrear() {
+    document.getElementById("form-crear-grupo").reset();
+    const overlay = document.getElementById("modal-crear");
+    overlay.style.display = "flex";
+    requestAnimationFrame(() => overlay.classList.add("visible"));
+  }
+
+  function cerrarModalCrear() {
+    const overlay = document.getElementById("modal-crear");
+    overlay.classList.remove("visible");
+    setTimeout(() => { overlay.style.display = "none"; }, 200);
+  }
+
+  function cerrarModalCrearSiAfuera(event) {
+    if (event.target === document.getElementById("modal-crear")) cerrarModalCrear();
+  }
+
+  document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") { cerrarModal(); cerrarModalCrear(); }
+  });
+</script>

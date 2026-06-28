@@ -794,6 +794,94 @@ body {
 }
 
 /* =============================================
+   PODIO
+   ============================================= */
+
+.podium-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 32px 24px 40px;
+  gap: 24px;
+}
+
+.podium-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--black);
+  text-align: center;
+}
+
+.podium {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 0;
+}
+
+.podium-place {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 140px;
+}
+
+.podium-trophy {
+  font-size: 32px;
+  margin-bottom: 6px;
+}
+
+.podium-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--black);
+  margin-bottom: 8px;
+  text-align: center;
+  max-width: 120px;
+  word-break: break-word;
+}
+
+.podium-block {
+  width: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px 6px 0 0;
+  padding: 12px 0 10px;
+  gap: 4px;
+}
+
+.podium-medal {
+  font-size: 22px;
+}
+
+.podium-rank {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--white);
+  line-height: 1;
+}
+
+.podium-1st .podium-block {
+  background-color: #C9A84C;
+  height: 140px;
+  border: 2px solid #b8943c;
+}
+
+.podium-2nd .podium-block {
+  background-color: #8C9BAA;
+  height: 100px;
+  border: 2px solid #7b8a98;
+}
+
+.podium-3rd .podium-block {
+  background-color: #A0714F;
+  height: 80px;
+  border: 2px solid #8e6040;
+}
+
+/* =============================================
    RESPONSIVE
    ============================================= */
 
@@ -828,4 +916,16 @@ body {
     width: 100%;
     justify-content: flex-start;
   }
+
+  .podium-place {
+    width: 100px;
+  }
+
+  .podium-block {
+    width: 88px;
+  }
+
+  .podium-1st .podium-block { height: 110px; }
+  .podium-2nd .podium-block { height: 80px; }
+  .podium-3rd .podium-block { height: 64px; }
 }

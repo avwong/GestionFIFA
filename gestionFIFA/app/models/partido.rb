@@ -59,6 +59,16 @@ class Partido < ApplicationRecord
     g == equipo_local ? equipo_visitante : equipo_local
   end
 
+  def self.podio
+    final  = where(fase: "final",        estado: "finalizado").first
+    tercer = where(fase: "tercer_lugar", estado: "finalizado").first
+    {
+      primero: final&.ganador,
+      segundo: final&.perdedor,
+      tercero: tercer&.ganador
+    }
+  end
+
   # Registrar resultado y actualizar estadísticas de equipos en fase de grupos
   def registrar_resultado(gl, gv, extra_l: nil, extra_v: nil, pen_l: nil, pen_v: nil)
     self.goles_local = gl

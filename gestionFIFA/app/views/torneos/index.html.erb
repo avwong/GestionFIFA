@@ -24,9 +24,8 @@
           </div>
         </div>
         <div class="torneo-card-actions">
-          <%= link_to "Gestionar →", torneo_path(torneo), class: "btn-green btn-sm" %>
-          <%= button_to "Eliminar", torneo_path(torneo), method: :delete, class: "btn-red btn-sm",
-                data: { turbo_confirm: "¿Eliminar el torneo '#{torneo.nombre}' y todos sus datos?" } %>
+          <%= link_to "Gestionar", edit_torneo_path(torneo), class: "btn-stroke btn-sm" %>
+          <%= link_to "Ver →", torneo_path(torneo), class: "btn-green btn-sm" %>
         </div>
       </div>
     <% end %>

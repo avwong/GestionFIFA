@@ -1,7 +1,7 @@
 Rails.application.routes.draw do
   root "torneos#index"
 
-  resources :torneos, only: [:index, :new, :create, :show, :destroy] do
+  resources :torneos, only: [:index, :new, :create, :show, :edit, :update, :destroy] do
     resources :equipos, only: [:index, :create, :update, :destroy]
   end
 

@@ -1124,6 +1124,36 @@ body {
 }
 
 /* =============================================
+   GESTIONAR — formulario de edición de torneo
+   ============================================= */
+
+.gestionar-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 28px 32px;
+  max-width: 560px;
+}
+
+.gestionar-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.modal-box--narrow {
+  max-width: 420px;
+}
+
+.confirm-desc {
+  font-size: 14px;
+  color: var(--gray-text);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+
+/* =============================================
    GRUPO — estado vacío
    ============================================= */
 

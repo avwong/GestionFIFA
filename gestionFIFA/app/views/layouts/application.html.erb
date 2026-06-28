@@ -14,9 +14,7 @@
     <div class="page-wrapper">
       <header class="site-header">
         <%= link_to "Gestión de Torneos FIFA", root_path, class: "site-title" %>
-        <nav class="app-nav">
-          <%= link_to "Torneos", torneos_path, class: "nav-tab #{controller_name == 'torneos' ? 'active' : ''}" %>
-        </nav>
+        <nav class="app-nav"></nav>
       </header>
 
       <% if flash[:notice] %>

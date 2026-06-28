@@ -26,6 +26,18 @@ class TorneosController < ApplicationController
     cargar_podio if @seccion == "podio"
   end
 
+  def edit
+  end
+
+  def update
+    if @torneo.update(torneo_params)
+      redirect_to edit_torneo_path(@torneo), notice: "Torneo actualizado correctamente."
+    else
+      flash.now[:alert] = @torneo.errors.full_messages.join(", ")
+      render :edit, status: :unprocessable_entity
+    end
+  end
+
   def destroy
     nombre = @torneo.nombre
     @torneo.destroy

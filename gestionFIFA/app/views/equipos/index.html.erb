@@ -1,5 +1,8 @@
 <div class="action-row">
-  <h2>Equipos</h2>
+  <div class="action-row-left">
+    <%= link_to "← #{@torneo.nombre}", torneo_path(@torneo), class: "back-link" %>
+    <h2>Equipos</h2>
+  </div>
   <div style="display: flex; gap: 12px; align-items: center;">
     <button class="btn-green" onclick="abrirModalCrear()">+ Añadir equipo</button>
     <input type="text" id="buscador-equipos" class="search-input" placeholder="Buscar equipo..." oninput="filtrarEquipos()">
@@ -45,7 +48,7 @@
   <div class="empty-state">
     <div class="empty-state-icon"></div>
     <p class="empty-state-title">No hay equipos registrados</p>
-    <p class="empty-state-desc">Los equipos aparecerán aquí una vez que se registren en el sistema</p>
+    <p class="empty-state-desc">Los equipos aparecerán aquí una vez que se registren en el torneo</p>
   </div>
 <% end %>
 
@@ -57,7 +60,7 @@
       <button class="modal-close" onclick="cerrarModal()" aria-label="Cerrar">&times;</button>
     </div>
 
-    <%= form_with url: equipos_path, method: :patch, scope: :equipo, id: "form-editar-equipo", local: true, authenticity_token: true, data: { turbo: false } do |f| %>
+    <%= form_with url: torneo_equipos_path(@torneo), method: :patch, scope: :equipo, id: "form-editar-equipo", local: true, authenticity_token: true, data: { turbo: false } do |f| %>
       <div class="form-group">
         <label class="form-label">Nombre del país</label>
         <%= f.text_field :nombre, id: "campo-nombre", class: "form-input", placeholder: "Nombre del equipo" %>
@@ -65,7 +68,7 @@
 
       <div class="form-group">
         <label class="form-label">Grupo</label>
-        <%= f.select :grupo_id, Grupo.order(:nombre).map { |g| ["Grupo #{g.nombre}", g.id] },
+        <%= f.select :grupo_id, @torneo.grupos.order(:nombre).map { |g| ["Grupo #{g.nombre}", g.id] },
               {}, { id: "campo-grupo", class: "form-input", onchange: "actualizarSwap()" } %>
       </div>
 
@@ -128,7 +131,7 @@
       <button class="modal-close" onclick="cerrarModalCrear()" aria-label="Cerrar">&times;</button>
     </div>
 
-    <%= form_with url: equipos_path, method: :post, scope: :equipo, id: "form-crear-equipo", local: true, authenticity_token: true, data: { turbo: false } do |f| %>
+    <%= form_with url: torneo_equipos_path(@torneo), method: :post, scope: :equipo, id: "form-crear-equipo", local: true, authenticity_token: true, data: { turbo: false } do |f| %>
       <div class="form-group">
         <label class="form-label">Nombre del país</label>
         <%= f.text_field :nombre, class: "form-input", placeholder: "Nombre del equipo", required: true %>
@@ -136,7 +139,7 @@
 
       <div class="form-group">
         <label class="form-label">Grupo</label>
-        <%= f.select :grupo_id, Grupo.order(:nombre).map { |g| ["Grupo #{g.nombre}", g.id] },
+        <%= f.select :grupo_id, @torneo.grupos.order(:nombre).map { |g| ["Grupo #{g.nombre}", g.id] },
               { prompt: "Selecciona un grupo" }, { id: "crear-campo-grupo", class: "form-input", required: true, onchange: "actualizarReemplazo()" } %>
       </div>
 
@@ -191,10 +194,9 @@
 </div>
 
 <script>
-  const BASE_URL = "<%= equipos_path %>";
+  const BASE_URL = "<%= torneo_equipos_path(@torneo) %>";
 
-  // Datos de grupos para el swap
-  const GRUPOS_DATA = <%= Grupo.includes(:equipos).order(:nombre).map { |g|
+  const GRUPOS_DATA = <%= @torneo.grupos.includes(:equipos).order(:nombre).map { |g|
     { id: g.id, nombre: g.nombre, lleno: g.equipos.count >= 4,
       equipos: g.equipos.map { |e| { id: e.id, nombre: e.nombre } } }
   }.to_json.html_safe %>;
@@ -231,7 +233,6 @@
     const swapSection  = document.getElementById("swap-section");
     const swapSelect   = document.getElementById("campo-swap");
 
-    // Ocultar si no cambió de grupo
     if (nuevoGrupoId === grupoActualId) {
       swapSection.style.display = "none";
       swapSelect.value = "";
@@ -240,7 +241,6 @@
 
     const grupoDestino = GRUPOS_DATA.find(g => g.id === nuevoGrupoId);
     if (grupoDestino && grupoDestino.lleno) {
-      // Poblar el selector con los equipos del grupo destino
       swapSelect.innerHTML = '<option value="">Selecciona un equipo</option>';
       grupoDestino.equipos
         .filter(e => e.id !== equipoActualId)
@@ -264,9 +264,7 @@
   }
 
   function cerrarModalSiAfuera(event) {
-    if (event.target === document.getElementById("modal-editar")) {
-      cerrarModal();
-    }
+    if (event.target === document.getElementById("modal-editar")) cerrarModal();
   }
 
   function abrirModalCrear() {
@@ -279,10 +277,10 @@
   }
 
   function actualizarReemplazo() {
-    const grupoId        = parseInt(document.getElementById("crear-campo-grupo").value);
-    const section        = document.getElementById("reemplazo-section");
-    const select         = document.getElementById("campo-reemplazo");
-    const grupoDestino   = GRUPOS_DATA.find(g => g.id === grupoId);
+    const grupoId      = parseInt(document.getElementById("crear-campo-grupo").value);
+    const section      = document.getElementById("reemplazo-section");
+    const select       = document.getElementById("campo-reemplazo");
+    const grupoDestino = GRUPOS_DATA.find(g => g.id === grupoId);
 
     if (grupoDestino && grupoDestino.lleno) {
       select.innerHTML = '<option value="">- Selecciona un equipo -</option>';
@@ -306,26 +304,17 @@
   }
 
   function cerrarModalCrearSiAfuera(event) {
-    if (event.target === document.getElementById("modal-crear")) {
-      cerrarModalCrear();
-    }
+    if (event.target === document.getElementById("modal-crear")) cerrarModalCrear();
   }
 
-  // Cerrar con Escape
   document.addEventListener("keydown", function(e) {
-    if (e.key === "Escape") {
-      cerrarModal();
-      cerrarModalCrear();
-    }
+    if (e.key === "Escape") { cerrarModal(); cerrarModalCrear(); }
   });
 
-  // Filtrar equipos por nombre
   function filtrarEquipos() {
     const texto = document.getElementById("buscador-equipos").value.toLowerCase();
-    const filas = document.querySelectorAll(".equipos-list .list-item");
-    filas.forEach(function(fila) {
-      const nombre = fila.querySelector("h3").textContent.toLowerCase();
-      fila.style.display = nombre.includes(texto) ? "" : "none";
+    document.querySelectorAll(".equipos-list .list-item").forEach(function(fila) {
+      fila.style.display = fila.querySelector("h3").textContent.toLowerCase().includes(texto) ? "" : "none";
     });
   }
 </script>

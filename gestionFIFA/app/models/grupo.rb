@@ -3,12 +3,14 @@ class Grupo < ApplicationRecord
 
   NOMBRES_VALIDOS = ("A".."L").to_a.freeze
 
+  belongs_to :torneo, optional: true
   has_many :equipos, foreign_key: :grupo_id, dependent: :destroy
   has_many :partidos, foreign_key: :grupo_id, dependent: :destroy
 
   validates :nombre, presence: { message: "no puede estar vacío" },
-                     uniqueness: { message: "ya existe" },
-                     inclusion: { in: NOMBRES_VALIDOS, message: "debe ser una letra entre A y L" }
+                     uniqueness: { scope: :torneo_id, message: "ya existe en este torneo" }
+  validates :nombre, inclusion: { in: NOMBRES_VALIDOS, message: "debe ser una letra entre A y L" },
+                     if: -> { torneo&.tipo == "mundial" }
   validate :maximo_cuatro_equipos
 
   # Tabla de posiciones ordenada por puntos, diferencia de goles, goles a favor

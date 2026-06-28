@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
   <head>
-    <title>Sistema Gestión Mundial 2026</title>
+    <title>Gestión de Torneos FIFA</title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="description" content="Sistema de gestión para el Mundial FIFA 2026 - México, Estados Unidos y Canadá">
     <%= csrf_meta_tags %>
@@ -13,10 +13,9 @@
   <body>
     <div class="page-wrapper">
       <header class="site-header">
-        <h1 class="site-title">Sistema Gestión Mundial 2026</h1>
+        <%= link_to "Gestión de Torneos FIFA", root_path, class: "site-title" %>
         <nav class="app-nav">
-          <%= link_to "Torneo", torneo_path, class: "nav-tab #{controller_name == 'torneo' ? 'active' : ''}" %>
-          <%= link_to "Equipos", equipos_path, class: "nav-tab #{controller_name == 'equipos' ? 'active' : ''}" %>
+          <%= link_to "Torneos", torneos_path, class: "nav-tab #{controller_name == 'torneos' ? 'active' : ''}" %>
         </nav>
       </header>
 

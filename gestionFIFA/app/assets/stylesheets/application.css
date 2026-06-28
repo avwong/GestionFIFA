@@ -63,6 +63,12 @@ body {
   font-weight: 700;
   color: var(--black);
   letter-spacing: -0.2px;
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.site-title:hover {
+  color: var(--green);
 }
 
 /* Toggle estilo Semanal/Mensual */
@@ -928,4 +934,202 @@ body {
   .podium-1st .podium-block { height: 110px; }
   .podium-2nd .podium-block { height: 80px; }
   .podium-3rd .podium-block { height: 64px; }
+}
+
+/* =============================================
+   TORNEOS — lista y tarjetas
+   ============================================= */
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.page-header .page-title {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.action-row-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.back-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray-text);
+  text-decoration: none;
+  padding: 6px 10px;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--white);
+  transition: background-color 0.15s;
+  white-space: nowrap;
+}
+
+.back-link:hover {
+  background-color: var(--bg);
+}
+
+.btn-sm {
+  font-size: 12px;
+  padding: 6px 14px;
+}
+
+.torneos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 520px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.torneos-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.torneos-list::-webkit-scrollbar-track {
+  background: var(--bg);
+  border-radius: 3px;
+}
+
+.torneos-list::-webkit-scrollbar-thumb {
+  background: var(--border-dark);
+  border-radius: 3px;
+}
+
+.torneos-list::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-text);
+}
+
+.torneo-card {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  width: 100%;
+}
+
+.torneo-card-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.torneo-nombre {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--black);
+}
+
+.tipo-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.tipo-badge--mundial {
+  background-color: var(--green-light);
+  color: var(--green);
+}
+
+.tipo-badge--bracket {
+  background-color: #EEF2FF;
+  color: #4F46E5;
+}
+
+.torneo-card-meta {
+  display: flex;
+  gap: 14px;
+  margin-left: auto;
+}
+
+.torneo-meta-item {
+  font-size: 12px;
+  color: var(--gray-text);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.torneo-card-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* =============================================
+   TIPO SELECTOR (radio cards)
+   ============================================= */
+
+.tipo-selector {
+  display: flex;
+  gap: 12px;
+}
+
+.tipo-option {
+  flex: 1;
+  cursor: pointer;
+}
+
+.tipo-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tipo-option-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: var(--white);
+  transition: border-color 0.15s, background-color 0.15s;
+}
+
+.tipo-option input[type="radio"]:checked + .tipo-option-card {
+  border-color: var(--green);
+  background-color: var(--green-light);
+}
+
+.tipo-option-icon {
+  font-size: 22px;
+}
+
+.tipo-option-label {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.tipo-option-desc {
+  font-size: 11px;
+  color: var(--gray-text);
+  line-height: 1.4;
+}
+
+/* =============================================
+   GRUPO — estado vacío
+   ============================================= */
+
+.group-empty {
+  font-size: 12px;
+  color: var(--gray-muted);
+  padding: 12px 0;
+  text-align: center;
 }

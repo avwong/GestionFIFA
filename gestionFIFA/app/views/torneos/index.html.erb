@@ -1,0 +1,97 @@
+<div class="page-header">
+  <h2 class="page-title">Torneos</h2>
+  <button class="btn-green" onclick="abrirModal('modal-nuevo-torneo')">+ Nuevo Torneo</button>
+</div>
+
+<% if @torneos.any? %>
+  <div class="torneos-list">
+    <% @torneos.each do |torneo| %>
+      <div class="torneo-card">
+        <div class="torneo-card-header">
+          <span class="torneo-nombre"><%= torneo.nombre %></span>
+          <span class="tipo-badge tipo-badge--<%= torneo.tipo %>">
+            <%= torneo.tipo == "mundial" ? "Mundial" : "Bracket" %>
+          </span>
+          <div class="torneo-card-meta">
+            <span class="torneo-meta-item">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="10" cy="10" r="8"/><path d="M10 6v4l3 3"/></svg>
+              <%= torneo.estado.capitalize %>
+            </span>
+            <span class="torneo-meta-item">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              <%= torneo.equipos_count %> equipos
+            </span>
+          </div>
+        </div>
+        <div class="torneo-card-actions">
+          <%= link_to "Gestionar →", torneo_path(torneo), class: "btn-green btn-sm" %>
+          <%= button_to "Eliminar", torneo_path(torneo), method: :delete, class: "btn-red btn-sm",
+                data: { turbo_confirm: "¿Eliminar el torneo '#{torneo.nombre}' y todos sus datos?" } %>
+        </div>
+      </div>
+    <% end %>
+  </div>
+<% else %>
+  <div class="empty-state">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ccc" stroke-width="1.5">
+      <path d="M8 21h8M12 17v4M6.5 3h11a.5.5 0 0 1 .5.5v3a6 6 0 0 1-12 0v-3a.5.5 0 0 1 .5-.5z"/>
+      <path d="M6.5 6.5H3a1 1 0 0 0-1 1v1a4 4 0 0 0 4 4h.5M17.5 6.5H21a1 1 0 0 1 1 1v1a4 4 0 0 1-4 4h-.5"/>
+    </svg>
+    <p class="empty-state-title">No hay torneos creados</p>
+    <p class="empty-state-desc">Crea tu primer torneo para comenzar a gestionar equipos y partidos.</p>
+    <button class="btn-green" onclick="abrirModal('modal-nuevo-torneo')">+ Nuevo Torneo</button>
+  </div>
+<% end %>
+
+<!-- Modal: Nuevo Torneo -->
+<div id="modal-nuevo-torneo" class="modal-overlay" style="display:none;" onclick="cerrarModalOverlay(event, 'modal-nuevo-torneo')">
+  <div class="modal-box">
+    <div class="modal-header">
+      <h3 class="modal-title">Nuevo Torneo</h3>
+      <button class="modal-close" onclick="cerrarModal('modal-nuevo-torneo')">✕</button>
+    </div>
+    <%= form_with url: torneos_path, method: :post do |f| %>
+      <div class="form-group">
+        <label class="form-label">Nombre del torneo</label>
+        <%= f.text_field :nombre, class: "form-input", placeholder: "Ej. Mundial 2026, Copa América…", required: true,
+              name: "torneo[nombre]" %>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Tipo de torneo</label>
+        <div class="tipo-selector">
+          <label class="tipo-option">
+            <input type="radio" name="torneo[tipo]" value="mundial" checked>
+            <div class="tipo-option-card">
+              <span class="tipo-option-icon">🏆</span>
+              <span class="tipo-option-label">Mundial</span>
+              <span class="tipo-option-desc">Fase de grupos + eliminatorias (estilo FIFA)</span>
+            </div>
+          </label>
+          <label class="tipo-option">
+            <input type="radio" name="torneo[tipo]" value="bracket">
+            <div class="tipo-option-card">
+              <span class="tipo-option-icon">⚡</span>
+              <span class="tipo-option-label">Bracket</span>
+              <span class="tipo-option-desc">Eliminación directa desde el inicio</span>
+            </div>
+          </label>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn-stroke" onclick="cerrarModal('modal-nuevo-torneo')">Cancelar</button>
+        <%= f.submit "Crear Torneo", class: "btn-green" %>
+      </div>
+    <% end %>
+  </div>
+</div>
+
+<script>
+  function abrirModal(id) {
+    document.getElementById(id).style.display = 'flex';
+    document.addEventListener('keydown', function escHandler(e) {
+      if (e.key === 'Escape') { cerrarModal(id); document.removeEventListener('keydown', escHandler); }
+    });
+  }
+  function cerrarModal(id) { document.getElementById(id).style.display = 'none'; }
+  function cerrarModalOverlay(e, id) { if (e.target.id === id) cerrarModal(id); }
+</script>

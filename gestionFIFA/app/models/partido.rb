@@ -14,6 +14,7 @@ class Partido < ApplicationRecord
     "final"          => "Final"
   }.freeze
 
+  belongs_to :torneo, optional: true
   belongs_to :grupo, foreign_key: :grupo_id, optional: true
   belongs_to :equipo_local, class_name: "Equipo", foreign_key: :equipo_local_id
   belongs_to :equipo_visitante, class_name: "Equipo", foreign_key: :equipo_visitante_id
@@ -59,9 +60,10 @@ class Partido < ApplicationRecord
     g == equipo_local ? equipo_visitante : equipo_local
   end
 
-  def self.podio
-    final  = where(fase: "final",        estado: "finalizado").first
-    tercer = where(fase: "tercer_lugar", estado: "finalizado").first
+  def self.podio(torneo = nil)
+    scope  = torneo ? where(torneo: torneo) : all
+    final  = scope.where(fase: "final",        estado: "finalizado").first
+    tercer = scope.where(fase: "tercer_lugar", estado: "finalizado").first
     {
       primero: final&.ganador,
       segundo: final&.perdedor,

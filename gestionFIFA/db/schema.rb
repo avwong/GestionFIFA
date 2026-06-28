@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_23_110002) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_28_211924) do
   create_table "equipos", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "goles_contra", default: 0, null: false
@@ -30,8 +30,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_23_110002) do
   create_table "grupos", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "nombre", null: false
+    t.integer "torneo_id"
     t.datetime "updated_at", null: false
     t.index ["nombre"], name: "index_grupos_on_nombre", unique: true
+    t.index ["torneo_id"], name: "index_grupos_on_torneo_id"
   end
 
   create_table "partidos", force: :cascade do |t|
@@ -49,16 +51,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_23_110002) do
     t.integer "penales_local"
     t.integer "penales_visitante"
     t.integer "siguiente_partido_id"
+    t.integer "torneo_id"
     t.datetime "updated_at", null: false
     t.index ["equipo_local_id"], name: "index_partidos_on_equipo_local_id"
     t.index ["equipo_visitante_id"], name: "index_partidos_on_equipo_visitante_id"
     t.index ["grupo_id"], name: "index_partidos_on_grupo_id"
     t.index ["siguiente_partido_id"], name: "index_partidos_on_siguiente_partido_id"
+    t.index ["torneo_id"], name: "index_partidos_on_torneo_id"
+  end
+
+  create_table "torneos", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "estado", default: "configuracion", null: false
+    t.string "nombre", null: false
+    t.string "tipo", null: false
+    t.datetime "updated_at", null: false
+    t.index ["nombre"], name: "index_torneos_on_nombre", unique: true
   end
 
   add_foreign_key "equipos", "grupos"
+  add_foreign_key "grupos", "torneos"
   add_foreign_key "partidos", "equipos", column: "equipo_local_id"
   add_foreign_key "partidos", "equipos", column: "equipo_visitante_id"
   add_foreign_key "partidos", "grupos"
   add_foreign_key "partidos", "partidos", column: "siguiente_partido_id"
+  add_foreign_key "partidos", "torneos"
 end

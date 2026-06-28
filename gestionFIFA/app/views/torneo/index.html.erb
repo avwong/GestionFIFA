@@ -8,9 +8,56 @@
         class: "sub-nav-tab #{@seccion == 'fase_grupos' ? 'active' : ''}" %>
   <%= link_to "Eliminación Directa", torneo_path(seccion: "eliminacion"),
         class: "sub-nav-tab #{@seccion == 'eliminacion' ? 'active' : ''}" %>
+  <%= link_to "Podio", torneo_path(seccion: "podio"),
+        class: "sub-nav-tab #{@seccion == 'podio' ? 'active' : ''}" %>
 </div>
 
-<% if @seccion == "fase_grupos" %>
+<% if @seccion == "podio" %>
+  <!-- ========== PODIO ========== -->
+  <% if @primero || @segundo || @tercero %>
+    <div class="podium-wrapper">
+      <h3 class="podium-title">Campeones del Mundial FIFA 2026</h3>
+      <div class="podium">
+        <div class="podium-place podium-2nd">
+          <div class="podium-name"><%= @segundo&.nombre || "—" %></div>
+          <div class="podium-block">
+            <span class="podium-medal">🥈</span>
+            <span class="podium-rank">2</span>
+          </div>
+        </div>
+        <div class="podium-place podium-1st">
+          <div class="podium-trophy">🏆</div>
+          <div class="podium-name"><%= @primero&.nombre || "—" %></div>
+          <div class="podium-block">
+            <span class="podium-medal">🥇</span>
+            <span class="podium-rank">1</span>
+          </div>
+        </div>
+        <div class="podium-place podium-3rd">
+          <div class="podium-name"><%= @tercero&.nombre || "—" %></div>
+          <div class="podium-block">
+            <span class="podium-medal">🥉</span>
+            <span class="podium-rank">3</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <div class="coming-soon-wrapper">
+      <div class="coming-soon-icon">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <h3 class="coming-soon-title">Podio no disponible aún</h3>
+      <p class="coming-soon-desc">
+        El podio se mostrará una vez que se hayan jugado la final y el partido por el tercer lugar.
+      </p>
+    </div>
+  <% end %>
+
+<% elsif @seccion == "fase_grupos" %>
   <!-- ========== FASE DE GRUPOS ========== -->
   <div class="groups-grid">
     <% @grupos.each do |grupo| %>

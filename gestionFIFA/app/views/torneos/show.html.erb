@@ -1,0 +1,140 @@
+<div class="action-row">
+  <div class="action-row-left">
+    <%= link_to "← Torneos", torneos_path, class: "back-link" %>
+    <h2><%= @torneo.nombre %></h2>
+    <span class="tipo-badge tipo-badge--<%= @torneo.tipo %>">
+      <%= @torneo.tipo == "mundial" ? "Mundial" : "Bracket" %>
+    </span>
+  </div>
+  <%= link_to "Equipos", torneo_equipos_path(@torneo), class: "btn-stroke btn-sm" %>
+</div>
+
+<!-- Sub-navegación -->
+<div class="sub-nav">
+  <%= link_to "Fase de Grupos", torneo_path(@torneo, seccion: "fase_grupos"),
+        class: "sub-nav-tab #{@seccion == 'fase_grupos' ? 'active' : ''}" %>
+  <%= link_to "Eliminación Directa", torneo_path(@torneo, seccion: "eliminacion"),
+        class: "sub-nav-tab #{@seccion == 'eliminacion' ? 'active' : ''}" %>
+  <%= link_to "Podio", torneo_path(@torneo, seccion: "podio"),
+        class: "sub-nav-tab #{@seccion == 'podio' ? 'active' : ''}" %>
+</div>
+
+<% if @seccion == "podio" %>
+  <!-- ========== PODIO ========== -->
+  <% if @primero || @segundo || @tercero %>
+    <div class="podium-wrapper">
+      <h3 class="podium-title">Campeones de <%= @torneo.nombre %></h3>
+      <div class="podium">
+        <div class="podium-place podium-2nd">
+          <div class="podium-name"><%= @segundo&.nombre || "—" %></div>
+          <div class="podium-block">
+            <span class="podium-medal">🥈</span>
+            <span class="podium-rank">2</span>
+          </div>
+        </div>
+        <div class="podium-place podium-1st">
+          <div class="podium-trophy">🏆</div>
+          <div class="podium-name"><%= @primero&.nombre || "—" %></div>
+          <div class="podium-block">
+            <span class="podium-medal">🥇</span>
+            <span class="podium-rank">1</span>
+          </div>
+        </div>
+        <div class="podium-place podium-3rd">
+          <div class="podium-name"><%= @tercero&.nombre || "—" %></div>
+          <div class="podium-block">
+            <span class="podium-medal">🥉</span>
+            <span class="podium-rank">3</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  <% else %>
+    <div class="coming-soon-wrapper">
+      <div class="coming-soon-icon">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <h3 class="coming-soon-title">Podio no disponible aún</h3>
+      <p class="coming-soon-desc">
+        El podio se mostrará una vez que se hayan jugado la final y el partido por el tercer lugar.
+      </p>
+    </div>
+  <% end %>
+
+<% elsif @seccion == "fase_grupos" %>
+  <!-- ========== FASE DE GRUPOS ========== -->
+  <% if @grupos.any? %>
+    <div class="groups-grid">
+      <% @grupos.each do |grupo| %>
+        <div class="group-card">
+          <div class="group-title">Grupo <%= grupo.nombre %></div>
+          <% if grupo.equipos.any? %>
+            <table class="group-table">
+              <thead>
+                <tr>
+                  <th class="col-team">Equipo</th>
+                  <th class="col-stat">PJ</th>
+                  <th class="col-stat">PG</th>
+                  <th class="col-stat">PE</th>
+                  <th class="col-stat">PP</th>
+                  <th class="col-stat">GF</th>
+                  <th class="col-stat">GC</th>
+                  <th class="col-stat">DG</th>
+                  <th class="col-stat col-pts">Pts</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% grupo.tabla_posiciones.each_with_index do |equipo, idx| %>
+                  <tr class="<%= idx < 2 ? 'clasificado' : '' %>">
+                    <td class="col-team"><%= equipo.nombre %></td>
+                    <td class="col-stat"><%= equipo.partidos_jugados %></td>
+                    <td class="col-stat"><%= equipo.partidos_ganados %></td>
+                    <td class="col-stat"><%= equipo.partidos_empatados %></td>
+                    <td class="col-stat"><%= equipo.partidos_perdidos %></td>
+                    <td class="col-stat"><%= equipo.goles_favor %></td>
+                    <td class="col-stat"><%= equipo.goles_contra %></td>
+                    <td class="col-stat"><%= equipo.diferencia_de_goles %></td>
+                    <td class="col-stat col-pts"><%= equipo.puntos %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          <% else %>
+            <p class="group-empty">Sin equipos asignados</p>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% else %>
+    <div class="coming-soon-wrapper">
+      <div class="coming-soon-icon">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#C8C8C8" stroke-width="1.5">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>
+        </svg>
+      </div>
+      <h3 class="coming-soon-title">Sin grupos</h3>
+      <p class="coming-soon-desc">
+        <%= link_to "Agrega equipos", torneo_equipos_path(@torneo) %> para comenzar la fase de grupos.
+      </p>
+    </div>
+  <% end %>
+
+<% else %>
+  <!-- ========== ELIMINACIÓN DIRECTA ========== -->
+  <div class="coming-soon-wrapper">
+    <div class="coming-soon-icon">
+      <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/>
+        <polyline points="12 6 12 12 16 14"/>
+      </svg>
+    </div>
+    <h3 class="coming-soon-title">Eliminación Directa</h3>
+    <p class="coming-soon-desc">
+      El bracket de eliminación directa estará disponible una vez que se completen los partidos de la fase de grupos.
+      <br>Incluirá: Dieciseisavos, Octavos, Cuartos, Semifinales, Tercer lugar y Final.
+    </p>
+  </div>
+<% end %>

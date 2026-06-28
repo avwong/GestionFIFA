@@ -1,0 +1,73 @@
+<div class="action-row">
+  <div class="action-row-left">
+    <%= link_to "← Torneos", torneos_path, class: "back-link" %>
+    <h2>Gestionar torneo</h2>
+  </div>
+  <%= link_to "Ver torneo →", torneo_path(@torneo), class: "btn-stroke btn-sm" %>
+</div>
+
+<div class="gestionar-card">
+  <%= form_with model: @torneo, method: :patch, local: true, data: { turbo: false } do |f| %>
+    <div class="form-group">
+      <label class="form-label">Nombre del torneo</label>
+      <%= f.text_field :nombre, class: "form-input", required: true %>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Tipo de torneo</label>
+      <div class="tipo-selector">
+        <label class="tipo-option">
+          <input type="radio" name="torneo[tipo]" value="mundial" <%= @torneo.tipo == "mundial" ? "checked" : "" %>>
+          <div class="tipo-option-card">
+            <span class="tipo-option-icon">🏆</span>
+            <span class="tipo-option-label">Mundial</span>
+            <span class="tipo-option-desc">Fase de grupos + eliminatorias (estilo FIFA)</span>
+          </div>
+        </label>
+        <label class="tipo-option">
+          <input type="radio" name="torneo[tipo]" value="bracket" <%= @torneo.tipo == "bracket" ? "checked" : "" %>>
+          <div class="tipo-option-card">
+            <span class="tipo-option-icon">⚡</span>
+            <span class="tipo-option-label">Bracket</span>
+            <span class="tipo-option-desc">Eliminación directa desde el inicio</span>
+          </div>
+        </label>
+      </div>
+    </div>
+
+    <div class="gestionar-actions">
+      <button type="button" class="btn-red" onclick="abrirConfirmacion()">Eliminar torneo</button>
+      <%= f.submit "Guardar cambios", class: "btn-green" %>
+    </div>
+  <% end %>
+</div>
+
+<!-- Modal: Confirmar eliminación -->
+<div id="modal-confirmar-borrar" class="modal-overlay" style="display:none;" onclick="cerrarConfirmacionOverlay(event)">
+  <div class="modal-box modal-box--narrow">
+    <div class="modal-header">
+      <h3 class="modal-title">Confirmar eliminación</h3>
+      <button class="modal-close" onclick="cerrarConfirmacion()">✕</button>
+    </div>
+    <p class="confirm-desc">
+      ¿Seguro que deseas eliminar <strong><%= @torneo.nombre %></strong>?
+      Esta acción borrará todos los grupos, equipos y partidos asociados y no se puede deshacer.
+    </p>
+    <div class="modal-actions">
+      <button type="button" class="btn-stroke" onclick="cerrarConfirmacion()">Cancelar</button>
+      <%= button_to "Sí, eliminar", torneo_path(@torneo), method: :delete, class: "btn-red",
+            form: { data: { turbo: false } } %>
+    </div>
+  </div>
+</div>
+
+<script>
+  function abrirConfirmacion() {
+    document.getElementById("modal-confirmar-borrar").style.display = "flex";
+    document.addEventListener("keydown", function escHandler(e) {
+      if (e.key === "Escape") { cerrarConfirmacion(); document.removeEventListener("keydown", escHandler); }
+    });
+  }
+  function cerrarConfirmacion() { document.getElementById("modal-confirmar-borrar").style.display = "none"; }
+  function cerrarConfirmacionOverlay(e) { if (e.target.id === "modal-confirmar-borrar") cerrarConfirmacion(); }
+</script>

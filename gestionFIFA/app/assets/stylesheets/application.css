@@ -1149,13 +1149,6 @@ body {
   max-width: 420px;
 }
 
-.confirm-desc {
-  font-size: 14px;
-  color: var(--gray-text);
-  line-height: 1.6;
-  margin-bottom: 20px;
-}
-
 /* =============================================
    GRUPO — estado vacío
    ============================================= */
@@ -1171,43 +1164,220 @@ body {
    MODAL DE CONFIRMACIÓN
    ============================================= */
 
+.modal-confirm-overlay {
+  z-index: 150;
+}
+
 .confirm-content {
-  padding: 24px 24px 6px;
+  padding: 28px 24px 22px;
   text-align: center;
 }
 
 .confirm-icon {
   width: 54px;
   height: 54px;
-  margin: 0 auto 14px;
+  margin: 0 auto 16px;
   border-radius: 50%;
   background-color: var(--red-light);
   border: 1px solid #F4B4B4;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
+}
+
+.confirm-icon span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: 25px;
+  line-height: 1;
+  transform: translateY(1px);
 }
 
 .confirm-title {
   font-size: 17px;
   font-weight: 700;
   color: var(--black);
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .confirm-desc {
   font-size: 14px;
   color: var(--gray-text);
   line-height: 1.6;
-  max-width: 340px;
+  max-width: 360px;
   margin: 0 auto;
 }
 
 .modal-actions-confirm {
   justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 0;
+  padding: 18px 24px 20px;
+  border-top: 1px solid var(--border);
 }
 
 .modal-actions-confirm form {
   padding: 0;
+  margin: 0;
+  display: flex;
+}
+
+.modal-actions-confirm .btn-stroke,
+.modal-actions-confirm .btn-red {
+  min-width: 104px;
+  text-align: center;
+}
+
+/* =============================================
+   FASE DE GRUPOS - PARTIDOS
+   ============================================= */
+
+.section-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  gap: 12px;
+  width: 100%;
+}
+
+.section-actions-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.section-actions-right form {
+  margin: 0;
+  padding: 0;
+}
+
+.section-help {
+  font-size: 13px;
+  color: var(--gray-muted);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.group-title-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.group-title-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+.btn-mini {
+  font-size: 11px;
+  padding: 4px 10px;
+}
+
+.group-status-small {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--gray-muted);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.modal-box--wide {
+  width: 760px;
+}
+
+.matches-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.match-editor-row {
+  display: grid;
+  grid-template-columns: 82px 1fr 110px 1fr;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 12px;
+  background-color: var(--white);
+}
+
+.match-played-check {
+  font-size: 12px;
+  color: var(--gray-text);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.match-team {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--black);
+}
+
+.match-team-left {
+  text-align: right;
+}
+
+.match-team-right {
+  text-align: left;
+}
+
+.match-score-inputs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.score-input {
+  width: 42px;
+  padding: 6px 4px;
+  border: 1px solid var(--border-dark);
+  border-radius: 4px;
+  text-align: center;
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.score-input:focus {
+  outline: none;
+  border-color: var(--green);
+}
+
+.form-info-box {
+  font-size: 12px;
+  color: var(--gray-text);
+  background-color: var(--green-light);
+  border: 1px solid #BFE8CC;
+  border-radius: 5px;
+  padding: 10px 12px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+@media (max-width: 720px) {
+  .section-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .match-editor-row {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
+
+  .match-team-left,
+  .match-team-right {
+    text-align: center;
+  }
 }

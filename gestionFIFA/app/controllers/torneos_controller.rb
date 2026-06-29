@@ -1,5 +1,5 @@
 class TorneosController < ApplicationController
-  before_action :load_torneo, only: %i[show edit update destroy]
+  before_action :load_torneo, only: %i[show edit update destroy generar_partidos_grupos guardar_partidos_grupo]
 
   def index
     @torneos = Torneo.order(:nombre)
@@ -28,7 +28,7 @@ class TorneosController < ApplicationController
 
   def show
     @seccion = params[:seccion] || 'fase_grupos'
-    @grupos  = @torneo.grupos.includes(:equipos).order(:nombre)
+    @grupos  = @torneo.grupos.includes(:equipos, partidos: %i[equipo_local equipo_visitante]).order(:nombre)
     cargar_podio if @seccion == 'podio'
   end
 
@@ -48,6 +48,61 @@ class TorneosController < ApplicationController
     nombre = @torneo.nombre
     @torneo.destroy
     redirect_to torneos_path, notice: "Torneo '#{nombre}' eliminado."
+  end
+
+  def generar_partidos_grupos
+    grupos_generados = 0
+
+    @torneo.grupos.includes(:equipos).each do |grupo|
+      next if grupo.equipos.count < 2
+
+      antes = grupo.partidos.where(fase: 'fase_grupos').count
+      grupo.generar_partidos_fase_grupos
+      despues = grupo.partidos.where(fase: 'fase_grupos').count
+
+      grupos_generados += 1 if despues > antes
+    end
+
+    if grupos_generados > 0
+      redirect_to torneo_path(@torneo, seccion: 'fase_grupos'),
+                  notice: 'Partidos de fase de grupos generados correctamente.'
+    else
+      redirect_to torneo_path(@torneo, seccion: 'fase_grupos'),
+                  alert: 'No se generaron partidos nuevos. Revise que los grupos tengan equipos suficientes.'
+    end
+  end
+
+  def guardar_partidos_grupo
+    grupo = @torneo.grupos.find(params[:grupo_id])
+    datos_partidos = params[:partidos] || {}
+
+    Partido.transaction do
+      datos_partidos.each do |partido_id, datos|
+        partido = grupo.partidos.find(partido_id)
+
+        if datos[:jugado] == '1'
+          partido.update!(
+            goles_local: datos[:goles_local],
+            goles_visitante: datos[:goles_visitante],
+            estado: 'finalizado'
+          )
+        else
+          partido.update!(
+            goles_local: nil,
+            goles_visitante: nil,
+            estado: 'pendiente'
+          )
+        end
+      end
+
+      grupo.recalcular_estadisticas
+    end
+
+    redirect_to torneo_path(@torneo, seccion: 'fase_grupos'),
+                notice: "Resultados del Grupo #{grupo.nombre} guardados correctamente."
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to torneo_path(@torneo, seccion: 'fase_grupos'),
+                alert: "Error al guardar resultados: #{e.record.errors.full_messages.join(', ')}"
   end
 
   private

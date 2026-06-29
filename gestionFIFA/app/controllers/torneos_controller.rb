@@ -1,5 +1,9 @@
 class TorneosController < ApplicationController
-  before_action :load_torneo, only: %i[show edit update destroy generar_partidos_grupos guardar_partidos_grupo]
+  before_action :load_torneo, only: %i[
+    show edit update destroy
+    generar_partidos_grupos guardar_partidos_grupo
+    generar_bracket guardar_partido_eliminacion
+  ]
 
   def index
     @torneos = Torneo.order(:nombre)
@@ -33,6 +37,7 @@ class TorneosController < ApplicationController
 
     cargar_podio if @seccion == 'podio'
     cargar_clasificados if @seccion == 'clasificados'
+    cargar_eliminacion if @seccion == 'eliminacion'
   end
 
   def edit
@@ -116,6 +121,87 @@ class TorneosController < ApplicationController
                 alert: "Error al guardar resultados: #{e.record.errors.full_messages.join(', ')}"
   end
 
+  def generar_bracket
+    unless @torneo.fase_grupos_completa?
+      return redirect_to torneo_path(@torneo, seccion: 'eliminacion'),
+                         alert: 'Primero deben completarse todos los partidos de fase de grupos.'
+    end
+
+    unless @torneo.clasificados_eliminatoria.count == 32
+      return redirect_to torneo_path(@torneo, seccion: 'eliminacion'),
+                         alert: 'Se necesitan 32 equipos clasificados para generar el bracket.'
+    end
+
+    if @torneo.partidos_eliminacion.exists?
+      return redirect_to torneo_path(@torneo, seccion: 'eliminacion'),
+                         alert: 'El bracket ya fue generado.'
+    end
+
+    if @torneo.generar_bracket_eliminacion
+      redirect_to torneo_path(@torneo, seccion: 'eliminacion'),
+                  notice: 'Bracket de eliminación directa generado correctamente.'
+    else
+      redirect_to torneo_path(@torneo, seccion: 'eliminacion'),
+                  alert: 'No se pudo generar el bracket.'
+    end
+  end
+
+  def guardar_partido_eliminacion
+    partido = @torneo.partidos_eliminacion.find(params[:partido_id])
+
+    goles_local = params[:goles_local]
+    goles_visitante = params[:goles_visitante]
+
+    if goles_local.blank? || goles_visitante.blank?
+      return redirect_to torneo_path(@torneo, seccion: 'eliminacion'),
+                         alert: 'Debe ingresar los goles de ambos equipos.'
+    end
+
+    goles_local = goles_local.to_i
+    goles_visitante = goles_visitante.to_i
+
+    penales_local = nil
+    penales_visitante = nil
+
+    if goles_local == goles_visitante
+      unless params[:usar_penales] == '1'
+        return redirect_to torneo_path(@torneo, seccion: 'eliminacion'),
+                           alert: 'Si el partido queda empatado, debe registrar penales.'
+      end
+
+      if params[:penales_local].blank? || params[:penales_visitante].blank?
+        return redirect_to torneo_path(@torneo, seccion: 'eliminacion'),
+                           alert: 'Debe ingresar el marcador de penales.'
+      end
+
+      penales_local = params[:penales_local].to_i
+      penales_visitante = params[:penales_visitante].to_i
+
+      if penales_local == penales_visitante
+        return redirect_to torneo_path(@torneo, seccion: 'eliminacion'),
+                           alert: 'En penales debe existir un ganador.'
+      end
+    end
+
+    Partido.transaction do
+      partido.update!(
+        goles_local: goles_local,
+        goles_visitante: goles_visitante,
+        penales_local: penales_local,
+        penales_visitante: penales_visitante,
+        estado: 'finalizado'
+      )
+
+      @torneo.actualizar_llaves_desde(partido)
+    end
+
+    redirect_to torneo_path(@torneo, seccion: 'eliminacion'),
+                notice: 'Resultado guardado correctamente.'
+  rescue ActiveRecord::RecordInvalid => e
+    redirect_to torneo_path(@torneo, seccion: 'eliminacion'),
+                alert: "Error al guardar resultado: #{e.record.errors.full_messages.join(', ')}"
+  end
+
   private
 
   def load_torneo
@@ -152,5 +238,13 @@ class TorneosController < ApplicationController
     @partidos_finalizados_grupos = @torneo.partidos_fase_grupos_finalizados
     @porcentaje_fase_grupos = @torneo.porcentaje_fase_grupos
     @fase_grupos_completa = @torneo.fase_grupos_completa?
+  end
+
+  def cargar_eliminacion
+    @partidos_eliminacion = @torneo.partidos_eliminacion
+                                   .includes(:equipo_local, :equipo_visitante)
+                                   .order(:numero_partido)
+
+    @partidos_por_numero = @partidos_eliminacion.index_by(&:numero_partido)
   end
 end

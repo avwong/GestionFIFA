@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_28_211924) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_29_024202) do
   create_table "equipos", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "goles_contra", default: 0, null: false
@@ -23,8 +23,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_28_211924) do
     t.integer "partidos_perdidos", default: 0, null: false
     t.integer "puntos", default: 0, null: false
     t.datetime "updated_at", null: false
+    t.index ["grupo_id", "nombre"], name: "index_equipos_on_grupo_id_and_nombre", unique: true
     t.index ["grupo_id"], name: "index_equipos_on_grupo_id"
-    t.index ["nombre"], name: "index_equipos_on_nombre", unique: true
   end
 
   create_table "grupos", force: :cascade do |t|
@@ -32,7 +32,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_28_211924) do
     t.string "nombre", null: false
     t.integer "torneo_id"
     t.datetime "updated_at", null: false
-    t.index ["nombre"], name: "index_grupos_on_nombre", unique: true
+    t.index ["torneo_id", "nombre"], name: "index_grupos_on_torneo_id_and_nombre", unique: true
     t.index ["torneo_id"], name: "index_grupos_on_torneo_id"
   end
 

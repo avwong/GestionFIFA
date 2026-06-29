@@ -1,5 +1,5 @@
 class TorneosController < ApplicationController
-  before_action :load_torneo, only: [:show, :edit, :update, :destroy]
+  before_action :load_torneo, only: %i[show edit update destroy]
 
   def index
     @torneos = Torneo.order(:nombre)
@@ -11,19 +11,25 @@ class TorneosController < ApplicationController
 
   def create
     @torneo = Torneo.new(torneo_params)
-    if @torneo.save
-      crear_grupos_iniciales(@torneo)
+
+    begin
+      Torneo.transaction do
+        @torneo.save!
+        crear_grupos_iniciales(@torneo)
+      end
+
       redirect_to torneo_path(@torneo), notice: "Torneo '#{@torneo.nombre}' creado correctamente."
-    else
-      flash.now[:alert] = @torneo.errors.full_messages.join(", ")
-      render :new, status: :unprocessable_entity
+    rescue ActiveRecord::RecordInvalid => e
+      redirect_to torneos_path, alert: "Error al crear el torneo: #{e.record.errors.full_messages.join(', ')}"
+    rescue ActiveRecord::RecordNotUnique
+      redirect_to torneos_path, alert: 'Error al crear el torneo: ya existen datos repetidos.'
     end
   end
 
   def show
-    @seccion = params[:seccion] || "fase_grupos"
+    @seccion = params[:seccion] || 'fase_grupos'
     @grupos  = @torneo.grupos.includes(:equipos).order(:nombre)
-    cargar_podio if @seccion == "podio"
+    cargar_podio if @seccion == 'podio'
   end
 
   def edit
@@ -31,9 +37,9 @@ class TorneosController < ApplicationController
 
   def update
     if @torneo.update(torneo_params)
-      redirect_to edit_torneo_path(@torneo), notice: "Torneo actualizado correctamente."
+      redirect_to edit_torneo_path(@torneo), notice: 'Torneo actualizado correctamente.'
     else
-      flash.now[:alert] = @torneo.errors.full_messages.join(", ")
+      flash.now[:alert] = @torneo.errors.full_messages.join(', ')
       render :edit, status: :unprocessable_entity
     end
   end
@@ -55,12 +61,12 @@ class TorneosController < ApplicationController
   end
 
   def crear_grupos_iniciales(torneo)
-    if torneo.tipo == "mundial"
+    if torneo.tipo == 'mundial'
       Grupo::NOMBRES_VALIDOS.each do |letra|
         torneo.grupos.create!(nombre: letra)
       end
     else
-      torneo.grupos.create!(nombre: "Bracket")
+      torneo.grupos.create!(nombre: 'Bracket')
     end
   end
 

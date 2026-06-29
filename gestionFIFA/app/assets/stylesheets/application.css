@@ -1166,3 +1166,48 @@ body {
   padding: 12px 0;
   text-align: center;
 }
+
+/* =============================================
+   MODAL DE CONFIRMACIÓN
+   ============================================= */
+
+.confirm-content {
+  padding: 24px 24px 6px;
+  text-align: center;
+}
+
+.confirm-icon {
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 14px;
+  border-radius: 50%;
+  background-color: var(--red-light);
+  border: 1px solid #F4B4B4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.confirm-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--black);
+  margin-bottom: 8px;
+}
+
+.confirm-desc {
+  font-size: 14px;
+  color: var(--gray-text);
+  line-height: 1.6;
+  max-width: 340px;
+  margin: 0 auto;
+}
+
+.modal-actions-confirm {
+  justify-content: center;
+}
+
+.modal-actions-confirm form {
+  padding: 0;
+}

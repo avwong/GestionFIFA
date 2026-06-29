@@ -66,11 +66,40 @@
 
 <% elsif @seccion == "fase_grupos" %>
   <!-- ========== FASE DE GRUPOS ========== -->
+  <div class="section-actions">
+    <p class="section-help">
+      Las tablas se actualizan automáticamente con los resultados de los partidos.
+    </p>
+
+    <div class="section-actions-right">
+      <%= button_to "Generar partidos de grupos",
+            generar_partidos_grupos_torneo_path(@torneo),
+            method: :post,
+            class: "btn-green btn-sm",
+            form: { data: { turbo: false } } %>
+    </div>
+  </div>
+
   <% if @grupos.any? %>
     <div class="groups-grid">
       <% @grupos.each do |grupo| %>
+        <% partidos_grupo = grupo.partidos.select { |p| p.fase == "fase_grupos" } %>
+
         <div class="group-card">
-          <div class="group-title">Grupo <%= grupo.nombre %></div>
+          <div class="group-title group-title-flex">
+            <span>Grupo <%= grupo.nombre %></span>
+
+            <div class="group-title-actions">
+              <% if partidos_grupo.any? %>
+                <button class="btn-edit btn-mini" onclick="abrirModalGrupo(<%= grupo.id %>)">
+                  Editar partidos
+                </button>
+              <% else %>
+                <span class="group-status-small">Sin partidos</span>
+              <% end %>
+            </div>
+          </div>
+
           <% if grupo.equipos.any? %>
             <table class="group-table">
               <thead>
@@ -106,8 +135,97 @@
             <p class="group-empty">Sin equipos asignados</p>
           <% end %>
         </div>
+
+        <% if partidos_grupo.any? %>
+          <div class="modal-overlay" id="modal-grupo-<%= grupo.id %>" onclick="cerrarModalGrupoSiAfuera(event, <%= grupo.id %>)">
+            <div class="modal-box modal-box--wide">
+              <div class="modal-header">
+                <h3>Partidos del Grupo <%= grupo.nombre %></h3>
+                <button class="modal-close" onclick="cerrarModalGrupo(<%= grupo.id %>)" aria-label="Cerrar">&times;</button>
+              </div>
+
+              <%= form_with url: guardar_partidos_grupo_torneo_path(@torneo, grupo_id: grupo.id),
+                    method: :patch,
+                    local: true,
+                    data: { turbo: false } do %>
+
+                <div class="matches-editor">
+                  <% partidos_grupo.each do |partido| %>
+                    <div class="match-editor-row">
+                      <label class="match-played-check">
+                        <%= check_box_tag "partidos[#{partido.id}][jugado]", "1", partido.finalizado?, id: "partido_#{partido.id}_jugado" %>
+                        Jugado
+                      </label>
+
+                      <div class="match-team match-team-left">
+                        <%= partido.equipo_local.nombre %>
+                      </div>
+
+                      <div class="match-score-inputs">
+                        <%= number_field_tag "partidos[#{partido.id}][goles_local]",
+                              partido.goles_local,
+                              min: 0,
+                              class: "score-input",
+                              oninput: "marcarPartidoJugado(#{partido.id})" %>
+                        <span>-</span>
+                        <%= number_field_tag "partidos[#{partido.id}][goles_visitante]",
+                              partido.goles_visitante,
+                              min: 0,
+                              class: "score-input",
+                              oninput: "marcarPartidoJugado(#{partido.id})" %>
+                      </div>
+
+                      <div class="match-team match-team-right">
+                        <%= partido.equipo_visitante.nombre %>
+                      </div>
+                    </div>
+                  <% end %>
+                </div>
+
+                <div class="modal-actions">
+                  <button type="button" class="btn-stroke" onclick="cerrarModalGrupo(<%= grupo.id %>)">Cancelar</button>
+                  <%= submit_tag "Guardar resultados", class: "btn-green" %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
       <% end %>
     </div>
+
+    <script>
+      function abrirModalGrupo(id) {
+        const modal = document.getElementById("modal-grupo-" + id);
+        modal.style.display = "flex";
+
+        requestAnimationFrame(() => {
+          modal.classList.add("visible");
+        });
+      }
+
+      function cerrarModalGrupo(id) {
+        const modal = document.getElementById("modal-grupo-" + id);
+        modal.classList.remove("visible");
+
+        setTimeout(() => {
+          modal.style.display = "none";
+        }, 200);
+      }
+
+      function cerrarModalGrupoSiAfuera(event, id) {
+        if (event.target === document.getElementById("modal-grupo-" + id)) {
+          cerrarModalGrupo(id);
+        }
+      }
+
+      function marcarPartidoJugado(id) {
+        const check = document.getElementById("partido_" + id + "_jugado");
+
+        if (check) {
+          check.checked = true;
+        }
+      }
+    </script>
   <% else %>
     <div class="coming-soon-wrapper">
       <div class="coming-soon-icon">

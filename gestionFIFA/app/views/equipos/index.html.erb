@@ -28,16 +28,7 @@
             </span>
           </div>
           <button class="btn-edit"
-                  onclick="abrirModal(<%= equipo.id %>,
-                    '<%= j equipo.nombre %>',
-                    '<%= equipo.grupo_id %>',
-                    <%= equipo.puntos %>,
-                    <%= equipo.partidos_jugados %>,
-                    <%= equipo.partidos_ganados %>,
-                    <%= equipo.partidos_empatados %>,
-                    <%= equipo.partidos_perdidos %>,
-                    <%= equipo.goles_favor %>,
-                    <%= equipo.goles_contra %>)">
+              onclick="abrirModal(<%= equipo.id %>, '<%= j equipo.nombre %>', '<%= equipo.grupo_id %>')">
             Editar
           </button>
         </div>
@@ -79,49 +70,48 @@
         </select>
       </div>
 
-      <div class="form-divider">
-        <span>Estadísticas</span>
-      </div>
-
-      <div class="form-grid-2">
-        <div class="form-group">
-          <label class="form-label">Partidos jugados</label>
-          <%= f.number_field :partidos_jugados, id: "campo-pj", class: "form-input", min: 0 %>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Puntos</label>
-          <%= f.number_field :puntos, id: "campo-puntos", class: "form-input", min: 0 %>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Ganados</label>
-          <%= f.number_field :partidos_ganados, id: "campo-pg", class: "form-input", min: 0 %>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Empatados</label>
-          <%= f.number_field :partidos_empatados, id: "campo-pe", class: "form-input", min: 0 %>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Perdidos</label>
-          <%= f.number_field :partidos_perdidos, id: "campo-pp", class: "form-input", min: 0 %>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Goles a favor</label>
-          <%= f.number_field :goles_favor, id: "campo-gf", class: "form-input", min: 0 %>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Goles en contra</label>
-          <%= f.number_field :goles_contra, id: "campo-gc", class: "form-input", min: 0 %>
-        </div>
+      <div class="form-info-box">
+        Las estadísticas del equipo se calculan automáticamente desde los resultados de los partidos.
       </div>
 
       <div class="modal-actions">
-        <button type="button" id="btn-borrar-equipo" class="btn-red" style="margin-right: auto;" onclick="eliminarEquipo()">
+        <button type="button" id="btn-borrar-equipo" class="btn-red" style="margin-right: auto;" onclick="abrirConfirmacionEquipo()">
           Borrar
         </button>
         <button type="button" class="btn-stroke" onclick="cerrarModal()">Cancelar</button>
         <%= f.submit "Guardar cambios", class: "btn-green" %>
       </div>
     <% end %>
+  </div>
+</div>
+
+<!-- ========== MODAL CONFIRMAR BORRAR EQUIPO ========== -->
+<div class="modal-overlay modal-confirm-overlay" id="modal-confirmar-equipo" onclick="cerrarConfirmacionEquipoSiAfuera(event)">
+  <div class="modal-box modal-box--narrow">
+    <div class="modal-header">
+      <h3 class="modal-title">Confirmar eliminación</h3>
+      <button class="modal-close" onclick="cerrarConfirmacionEquipo()" aria-label="Cerrar">&times;</button>
+    </div>
+
+    <div class="confirm-content">
+      <div class="confirm-icon">
+        <span>⚠️</span>
+      </div>
+
+      <p class="confirm-title">
+        ¿Eliminar <strong id="nombre-equipo-borrar">este equipo</strong>?
+      </p>
+
+      <p class="confirm-desc">
+        Esta acción eliminará el equipo del torneo y también los partidos de fase de grupos donde participa.
+        Las estadísticas del grupo se recalcularán automáticamente.
+      </p>
+    </div>
+
+    <div class="modal-actions modal-actions-confirm">
+      <button type="button" class="btn-stroke" onclick="cerrarConfirmacionEquipo()">Cancelar</button>
+      <button type="button" class="btn-red" onclick="confirmarEliminarEquipo()">Sí, eliminar</button>
+    </div>
   </div>
 </div>
 
@@ -152,39 +142,8 @@
         </select>
       </div>
 
-      <div class="form-divider">
-        <span>Estadísticas iniciales</span>
-      </div>
-
-      <div class="form-grid-2">
-        <div class="form-group">
-          <label class="form-label">Partidos jugados</label>
-          <%= f.number_field :partidos_jugados, class: "form-input", min: 0, value: 0 %>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Puntos</label>
-          <%= f.number_field :puntos, class: "form-input", min: 0, value: 0 %>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Ganados</label>
-          <%= f.number_field :partidos_ganados, class: "form-input", min: 0, value: 0 %>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Empatados</label>
-          <%= f.number_field :partidos_empatados, class: "form-input", min: 0, value: 0 %>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Perdidos</label>
-          <%= f.number_field :partidos_perdidos, class: "form-input", min: 0, value: 0 %>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Goles a favor</label>
-          <%= f.number_field :goles_favor, class: "form-input", min: 0, value: 0 %>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Goles en contra</label>
-          <%= f.number_field :goles_contra, class: "form-input", min: 0, value: 0 %>
-        </div>
+      <div class="form-info-box">
+        El equipo iniciará con 0 puntos, 0 partidos jugados y 0 goles. Estos datos se actualizarán desde la fase de grupos.
       </div>
 
       <div class="modal-actions">
@@ -204,11 +163,13 @@
   }.to_json.html_safe %>;
 
   let equipoActualId = null;
+  let equipoActualNombre = null;
   let grupoActualId  = null;
 
-  function abrirModal(id, nombre, grupoId, puntos, pj, pg, pe, pp, gf, gc) {
+  function abrirModal(id, nombre, grupoId) {
     equipoActualId = id;
     grupoActualId  = parseInt(grupoId);
+    equipoActualNombre = nombre;
 
     document.getElementById("modal-titulo").textContent = "Editar: " + nombre;
     document.getElementById("form-editar-equipo").action = BASE_URL + "/" + id;
@@ -216,13 +177,6 @@
     document.getElementById("campo-grupo").value = grupoId;
     document.getElementById("campo-swap").value = "";
     document.getElementById("swap-section").style.display = "none";
-    document.getElementById("campo-pj").value = pj;
-    document.getElementById("campo-puntos").value = puntos;
-    document.getElementById("campo-pg").value = pg;
-    document.getElementById("campo-pe").value = pe;
-    document.getElementById("campo-pp").value = pp;
-    document.getElementById("campo-gf").value = gf;
-    document.getElementById("campo-gc").value = gc;
 
     const overlay = document.getElementById("modal-editar");
     overlay.style.display = "flex";
@@ -268,11 +222,36 @@
     if (event.target === document.getElementById("modal-editar")) cerrarModal();
   }
 
-  function eliminarEquipo() {
+  function abrirConfirmacionEquipo() {
   if (!equipoActualId) return;
 
-  const confirmar = confirm("¿Seguro que deseas borrar este equipo?");
-  if (!confirmar) return;
+  document.getElementById("nombre-equipo-borrar").textContent = equipoActualNombre || "este equipo";
+
+  const modal = document.getElementById("modal-confirmar-equipo");
+  modal.style.display = "flex";
+
+  requestAnimationFrame(() => {
+    modal.classList.add("visible");
+  });
+}
+
+function cerrarConfirmacionEquipo() {
+  const modal = document.getElementById("modal-confirmar-equipo");
+  modal.classList.remove("visible");
+
+  setTimeout(() => {
+    modal.style.display = "none";
+  }, 200);
+}
+
+function cerrarConfirmacionEquipoSiAfuera(event) {
+  if (event.target === document.getElementById("modal-confirmar-equipo")) {
+    cerrarConfirmacionEquipo();
+  }
+}
+
+function confirmarEliminarEquipo() {
+  if (!equipoActualId) return;
 
   const token = document.querySelector('meta[name="csrf-token"]').content;
 

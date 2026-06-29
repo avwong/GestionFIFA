@@ -13,6 +13,8 @@
 <div class="sub-nav">
   <%= link_to "Fase de Grupos", torneo_path(@torneo, seccion: "fase_grupos"),
         class: "sub-nav-tab #{@seccion == 'fase_grupos' ? 'active' : ''}" %>
+  <%= link_to "Clasificados", torneo_path(@torneo, seccion: "clasificados"),
+        class: "sub-nav-tab #{@seccion == 'clasificados' ? 'active' : ''}" %>
   <%= link_to "Eliminación Directa", torneo_path(@torneo, seccion: "eliminacion"),
         class: "sub-nav-tab #{@seccion == 'eliminacion' ? 'active' : ''}" %>
   <%= link_to "Podio", torneo_path(@torneo, seccion: "podio"),
@@ -117,7 +119,8 @@
               </thead>
               <tbody>
                 <% grupo.tabla_posiciones.each_with_index do |equipo, idx| %>
-                  <tr class="<%= idx < 2 ? 'clasificado' : '' %>">
+                    <% tercer_clasificado = idx == 2 && @mejores_terceros_ids.include?(equipo.id) %>
+                    <tr class="<%= (idx < 2 || tercer_clasificado) ? 'clasificado' : '' %>">
                     <td class="col-team"><%= equipo.nombre %></td>
                     <td class="col-stat"><%= equipo.partidos_jugados %></td>
                     <td class="col-stat"><%= equipo.partidos_ganados %></td>
@@ -238,6 +241,109 @@
         <%= link_to "Agrega equipos", torneo_equipos_path(@torneo) %> para comenzar la fase de grupos.
       </p>
     </div>
+  <% end %>
+
+<% elsif @seccion == "clasificados" %>
+  <!-- ========== CLASIFICADOS ========== -->
+  <div class="clasificados-header-simple">
+    <h3>Clasificados a eliminación directa</h3>
+    <p>
+      Se muestran los primeros y segundos de cada grupo, más los ocho mejores terceros.
+    </p>
+  </div>
+
+  <% if @total_partidos_grupos.zero? %>
+    <div class="coming-soon-wrapper">
+      <div class="coming-soon-icon">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <h3 class="coming-soon-title">Sin partidos generados</h3>
+      <p class="coming-soon-desc">
+        Primero genera los partidos de fase de grupos para calcular los clasificados.
+      </p>
+      <%= link_to "Volver a Fase de Grupos", torneo_path(@torneo, seccion: "fase_grupos"), class: "btn-stroke" %>
+    </div>
+  <% else %>
+    <% unless @fase_grupos_completa %>
+      <div class="clasificados-aviso">
+        Clasificación provisional: todavía hay partidos pendientes en la fase de grupos.
+      </div>
+    <% end %>
+
+    <h3 class="clasificados-section-title">Lista de países clasificados a eliminatoria</h3>
+
+    <div class="qualified-list">
+      <% @clasificados_eliminatoria.each_with_index do |equipo, index| %>
+        <% es_mejor_tercero = @mejores_terceros_ids.include?(equipo.id) %>
+
+        <div class="qualified-item">
+          <span class="qualified-number"><%= index + 1 %></span>
+
+          <div class="qualified-main">
+            <strong><%= equipo.nombre %></strong>
+            <small>
+              Grupo <%= equipo.grupo.nombre %> ·
+              <%= equipo.puntos %> pts ·
+              DG <%= equipo.diferencia_de_goles >= 0 ? '+' : '' %><%= equipo.diferencia_de_goles %> ·
+              GF <%= equipo.goles_favor %>
+            </small>
+          </div>
+
+          <% if es_mejor_tercero %>
+            <span class="qualified-badge qualified-badge-third">Mejor 3°</span>
+          <% else %>
+            <span class="qualified-badge qualified-badge-direct">Directo</span>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+
+    <h3 class="clasificados-section-title">Tabla de terceros</h3>
+
+    <% if @terceros_ordenados.any? %>
+      <div class="thirds-table-wrapper">
+        <table class="group-table">
+          <thead>
+            <tr>
+              <th class="col-stat">#</th>
+              <th class="col-team">Equipo</th>
+              <th class="col-stat">Grupo</th>
+              <th class="col-stat">Pts</th>
+              <th class="col-stat">DG</th>
+              <th class="col-stat">GF</th>
+              <th class="col-stat">Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% @terceros_ordenados.each_with_index do |equipo, index| %>
+              <tr class="<%= index < 8 ? 'clasificado' : 'tercero-eliminado' %>">
+                <td class="col-stat"><%= index + 1 %></td>
+                <td class="col-team"><%= equipo.nombre %></td>
+                <td class="col-stat"><%= equipo.grupo.nombre %></td>
+                <td class="col-stat col-pts"><%= equipo.puntos %></td>
+                <td class="col-stat"><%= equipo.diferencia_de_goles %></td>
+                <td class="col-stat"><%= equipo.goles_favor %></td>
+                <td class="col-stat">
+                  <% if index < 8 %>
+                    <span class="third-status third-status-in">Clasifica</span>
+                  <% else %>
+                    <span class="third-status third-status-out">Fuera</span>
+                  <% end %>
+                </td>
+              </tr>
+            <% end %>
+          </tbody>
+        </table>
+      </div>
+    <% else %>
+      <div class="empty-state">
+        <p class="empty-state-title">No hay terceros disponibles</p>
+        <p class="empty-state-desc">Los terceros lugares aparecerán cuando los grupos tengan suficientes equipos.</p>
+      </div>
+    <% end %>
   <% end %>
 
 <% else %>

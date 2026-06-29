@@ -28,8 +28,11 @@ class TorneosController < ApplicationController
 
   def show
     @seccion = params[:seccion] || 'fase_grupos'
-    @grupos  = @torneo.grupos.includes(:equipos, partidos: %i[equipo_local equipo_visitante]).order(:nombre)
+    @grupos = @torneo.grupos.includes(:equipos, partidos: %i[equipo_local equipo_visitante]).order(:nombre)
+    @mejores_terceros_ids = @torneo.mejores_terceros.map(&:id)
+
     cargar_podio if @seccion == 'podio'
+    cargar_clasificados if @seccion == 'clasificados'
   end
 
   def edit
@@ -64,6 +67,8 @@ class TorneosController < ApplicationController
     end
 
     if grupos_generados > 0
+      @torneo.update(estado: 'grupos') if @torneo.estado == 'configuracion'
+
       redirect_to torneo_path(@torneo, seccion: 'fase_grupos'),
                   notice: 'Partidos de fase de grupos generados correctamente.'
     else
@@ -96,6 +101,12 @@ class TorneosController < ApplicationController
       end
 
       grupo.recalcular_estadisticas
+
+      if @torneo.fase_grupos_completa?
+        @torneo.update!(estado: 'eliminacion')
+      else
+        @torneo.update!(estado: 'grupos')
+      end
     end
 
     redirect_to torneo_path(@torneo, seccion: 'fase_grupos'),
@@ -130,5 +141,16 @@ class TorneosController < ApplicationController
     @primero = podio[:primero]
     @segundo = podio[:segundo]
     @tercero = podio[:tercero]
+  end
+
+  def cargar_clasificados
+    @clasificados_directos = @torneo.clasificados_directos
+    @mejores_terceros = @torneo.mejores_terceros
+    @terceros_ordenados = @torneo.terceros_ordenados
+    @clasificados_eliminatoria = @torneo.clasificados_eliminatoria
+    @total_partidos_grupos = @torneo.total_partidos_fase_grupos
+    @partidos_finalizados_grupos = @torneo.partidos_fase_grupos_finalizados
+    @porcentaje_fase_grupos = @torneo.porcentaje_fase_grupos
+    @fase_grupos_completa = @torneo.fase_grupos_completa?
   end
 end

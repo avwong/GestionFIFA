@@ -5,6 +5,8 @@ Rails.application.routes.draw do
     member do
       post :generar_partidos_grupos
       patch :guardar_partidos_grupo
+      post :generar_bracket
+      patch :guardar_partido_eliminacion
     end
 
     resources :equipos, only: %i[index create update destroy]

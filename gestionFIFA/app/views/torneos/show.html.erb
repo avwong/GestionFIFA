@@ -348,17 +348,200 @@
 
 <% else %>
   <!-- ========== ELIMINACIÓN DIRECTA ========== -->
-  <div class="coming-soon-wrapper">
-    <div class="coming-soon-icon">
-      <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <polyline points="12 6 12 12 16 14"/>
-      </svg>
-    </div>
-    <h3 class="coming-soon-title">Eliminación Directa</h3>
-    <p class="coming-soon-desc">
-      El bracket de eliminación directa estará disponible una vez que se completen los partidos de la fase de grupos.
-      <br>Incluirá: Dieciseisavos, Octavos, Cuartos, Semifinales, Tercer lugar y Final.
+  <div class="section-actions">
+    <p class="section-help">
+      El bracket se genera con los 32 clasificados ordenados por rendimiento en fase de grupos.
     </p>
+
+    <div class="section-actions-right">
+      <% if @torneo.partidos_eliminacion.any? %>
+        <span class="stat-pill">Bracket generado</span>
+      <% else %>
+        <%= button_to "Generar bracket",
+              generar_bracket_torneo_path(@torneo),
+              method: :post,
+              class: "btn-green btn-sm",
+              form: { data: { turbo: false } } %>
+      <% end %>
+    </div>
   </div>
+
+  <% if @torneo.clasificados_eliminatoria.count < 32 %>
+    <div class="coming-soon-wrapper">
+      <div class="coming-soon-icon">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <h3 class="coming-soon-title">Clasificados incompletos</h3>
+      <p class="coming-soon-desc">
+        Para generar el bracket se necesitan 32 equipos clasificados.
+      </p>
+      <%= link_to "Ver Clasificados", torneo_path(@torneo, seccion: "clasificados"), class: "btn-stroke" %>
+    </div>
+  <% elsif @torneo.partidos_eliminacion.empty? %>
+    <div class="coming-soon-wrapper">
+      <div class="coming-soon-icon">
+        <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="#C8C8C8" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M8 21h8M12 17v4M6.5 3h11a.5.5 0 0 1 .5.5v3a6 6 0 0 1-12 0v-3a.5.5 0 0 1 .5-.5z"/>
+        </svg>
+      </div>
+      <h3 class="coming-soon-title">Bracket listo para generarse</h3>
+      <p class="coming-soon-desc">
+        Ya existen 32 clasificados. Presiona “Generar bracket” para crear los dieciseisavos de final.
+      </p>
+    </div>
+  <% else %>
+    <div class="bracket-stage">
+      <div class="bracket-side bracket-left">
+        <div class="bracket-round">
+          <h4>Dieciseisavos</h4>
+          <div class="bracket-round-body">
+            <% (1..8).each do |numero| %>
+              <%= render "partido_bracket", partido: @partidos_por_numero[numero] %>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="bracket-round">
+          <h4>Octavos</h4>
+          <div class="bracket-round-body">
+            <% (17..20).each do |numero| %>
+              <%= render "partido_bracket", partido: @partidos_por_numero[numero] %>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="bracket-round">
+          <h4>Cuartos</h4>
+          <div class="bracket-round-body">
+            <% (25..26).each do |numero| %>
+              <%= render "partido_bracket", partido: @partidos_por_numero[numero] %>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="bracket-round">
+          <h4>Semifinal</h4>
+          <div class="bracket-round-body">
+            <%= render "partido_bracket", partido: @partidos_por_numero[29] %>
+          </div>
+        </div>
+      </div>
+
+      <div class="bracket-center">
+        <div class="bracket-title-box">
+          <span>Eliminación directa</span>
+          <strong><%= @torneo.nombre %></strong>
+        </div>
+
+        <div class="bracket-trophy">🏆</div>
+
+        <div class="bracket-final-card">
+          <h4>Final</h4>
+          <%= render "partido_bracket", partido: @partidos_por_numero[32] %>
+        </div>
+
+        <div class="bracket-final-card">
+          <h4>Tercer lugar</h4>
+          <%= render "partido_bracket", partido: @partidos_por_numero[31] %>
+        </div>
+      </div>
+
+      <div class="bracket-side bracket-right">
+        <div class="bracket-round">
+          <h4>Semifinal</h4>
+          <div class="bracket-round-body">
+            <%= render "partido_bracket", partido: @partidos_por_numero[30] %>
+          </div>
+        </div>
+
+        <div class="bracket-round">
+          <h4>Cuartos</h4>
+          <div class="bracket-round-body">
+            <% (27..28).each do |numero| %>
+              <%= render "partido_bracket", partido: @partidos_por_numero[numero] %>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="bracket-round">
+          <h4>Octavos</h4>
+          <div class="bracket-round-body">
+            <% (21..24).each do |numero| %>
+              <%= render "partido_bracket", partido: @partidos_por_numero[numero] %>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="bracket-round">
+          <h4>Dieciseisavos</h4>
+          <div class="bracket-round-body">
+            <% (9..16).each do |numero| %>
+              <%= render "partido_bracket", partido: @partidos_por_numero[numero] %>
+            <% end %>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      function abrirModalEliminacion(id) {
+        const modal = document.getElementById("modal-eliminacion-" + id);
+        modal.style.display = "flex";
+
+        actualizarPenalesEliminacion(id);
+
+        requestAnimationFrame(() => {
+          modal.classList.add("visible");
+        });
+      }
+
+      function cerrarModalEliminacion(id) {
+        const modal = document.getElementById("modal-eliminacion-" + id);
+        modal.classList.remove("visible");
+
+        setTimeout(() => {
+          modal.style.display = "none";
+        }, 200);
+      }
+
+      function cerrarModalEliminacionSiAfuera(event, id) {
+        if (event.target === document.getElementById("modal-eliminacion-" + id)) {
+          cerrarModalEliminacion(id);
+        }
+      }
+
+      function actualizarPenalesEliminacion(id) {
+        const gl = document.getElementById("elim_" + id + "_gl");
+        const gv = document.getElementById("elim_" + id + "_gv");
+        const check = document.getElementById("elim_" + id + "_penales_check");
+        const box = document.getElementById("elim_" + id + "_penales_box");
+
+        if (!gl || !gv || !check || !box) return;
+
+        const hayMarcador = gl.value !== "" && gv.value !== "";
+        const empate = hayMarcador && parseInt(gl.value) === parseInt(gv.value);
+
+        check.disabled = !empate;
+
+        if (!empate) {
+          check.checked = false;
+          box.style.display = "none";
+        } else if (check.checked) {
+          box.style.display = "";
+        }
+      }
+
+      function togglePenalesEliminacion(id) {
+        const check = document.getElementById("elim_" + id + "_penales_check");
+        const box = document.getElementById("elim_" + id + "_penales_box");
+
+        if (!check || !box) return;
+
+        box.style.display = check.checked ? "" : "none";
+      }
+    </script>
+  <% end %>
 <% end %>

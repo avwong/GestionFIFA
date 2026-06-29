@@ -1,0 +1,124 @@
+<% if partido %>
+  <% ganador = partido.ganador %>
+  <% empate = partido.goles_local.present? && partido.goles_visitante.present? && partido.goles_local == partido.goles_visitante %>
+  <% tiene_penales = partido.penales_local.present? && partido.penales_visitante.present? %>
+
+  <div class="bracket-match-card <%= partido.finalizado? ? 'match-finalizado' : '' %>">
+    <div class="bracket-match-top">
+      <span>Partido <%= partido.numero_partido %></span>
+      <button type="button" class="bracket-edit-btn" onclick="abrirModalEliminacion(<%= partido.id %>)">
+        Editar
+      </button>
+    </div>
+
+    <div class="bracket-team-row <%= ganador == partido.equipo_local ? 'winner' : '' %>">
+      <span><%= partido.equipo_local.nombre %></span>
+      <strong><%= partido.finalizado? ? partido.goles_local : '-' %></strong>
+    </div>
+
+    <div class="bracket-team-row <%= ganador == partido.equipo_visitante ? 'winner' : '' %>">
+      <span><%= partido.equipo_visitante.nombre %></span>
+      <strong><%= partido.finalizado? ? partido.goles_visitante : '-' %></strong>
+    </div>
+
+    <% if tiene_penales %>
+      <div class="bracket-penales">
+        Penales: <%= partido.penales_local %> - <%= partido.penales_visitante %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="modal-overlay" id="modal-eliminacion-<%= partido.id %>" onclick="cerrarModalEliminacionSiAfuera(event, <%= partido.id %>)">
+    <div class="modal-box modal-box--narrow">
+      <div class="modal-header">
+        <h3><%= partido.etiqueta_fase %></h3>
+        <button class="modal-close" onclick="cerrarModalEliminacion(<%= partido.id %>)" aria-label="Cerrar">&times;</button>
+      </div>
+
+      <%= form_with url: guardar_partido_eliminacion_torneo_path(@torneo, partido_id: partido.id),
+            method: :patch,
+            local: true,
+            data: { turbo: false } do %>
+
+        <div class="elim-match-editor">
+          <div class="elim-team-line">
+            <span><%= partido.equipo_local.nombre %></span>
+            <%= number_field_tag :goles_local,
+                  partido.goles_local,
+                  min: 0,
+                  class: "score-input",
+                  id: "elim_#{partido.id}_gl",
+                  oninput: "actualizarPenalesEliminacion(#{partido.id})" %>
+          </div>
+
+          <div class="elim-team-line">
+            <span><%= partido.equipo_visitante.nombre %></span>
+            <%= number_field_tag :goles_visitante,
+                  partido.goles_visitante,
+                  min: 0,
+                  class: "score-input",
+                  id: "elim_#{partido.id}_gv",
+                  oninput: "actualizarPenalesEliminacion(#{partido.id})" %>
+          </div>
+
+          <div class="penalty-panel">
+            <label class="penalty-toggle">
+              <%= check_box_tag :usar_penales,
+                    "1",
+                    tiene_penales,
+                    id: "elim_#{partido.id}_penales_check",
+                    disabled: !empate,
+                    onchange: "togglePenalesEliminacion(#{partido.id})" %>
+              Hubo penales
+            </label>
+
+            <div class="penalty-inputs" id="elim_<%= partido.id %>_penales_box" style="<%= tiene_penales ? '' : 'display:none;' %>">
+              <div>
+                <label><%= partido.equipo_local.nombre %></label>
+                <%= number_field_tag :penales_local,
+                      partido.penales_local,
+                      min: 0,
+                      class: "score-input" %>
+              </div>
+
+              <span>-</span>
+
+              <div>
+                <label><%= partido.equipo_visitante.nombre %></label>
+                <%= number_field_tag :penales_visitante,
+                      partido.penales_visitante,
+                      min: 0,
+                      class: "score-input" %>
+              </div>
+            </div>
+
+            <p class="penalty-help">
+              Los penales solo se habilitan si el marcador principal queda empatado.
+            </p>
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-stroke" onclick="cerrarModalEliminacion(<%= partido.id %>)">Cancelar</button>
+          <%= submit_tag "Guardar resultado", class: "btn-green" %>
+        </div>
+      <% end %>
+    </div>
+  </div>
+<% else %>
+  <div class="bracket-match-card bracket-empty-slot">
+    <div class="bracket-match-top">
+      <span>Por definir</span>
+    </div>
+
+    <div class="bracket-team-row">
+      <span>Equipo pendiente</span>
+      <strong>-</strong>
+    </div>
+
+    <div class="bracket-team-row">
+      <span>Equipo pendiente</span>
+      <strong>-</strong>
+    </div>
+  </div>
+<% end %>

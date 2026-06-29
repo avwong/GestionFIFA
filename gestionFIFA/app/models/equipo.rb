@@ -1,13 +1,15 @@
 class Equipo < ApplicationRecord
-  self.table_name = "equipos"
+  self.table_name = 'equipos'
 
   belongs_to :grupo, foreign_key: :grupo_id
 
-  has_many :partidos_local, class_name: "Partido", foreign_key: :equipo_local_id, dependent: :destroy
-  has_many :partidos_visitante, class_name: "Partido", foreign_key: :equipo_visitante_id, dependent: :destroy
+  has_many :partidos_local, class_name: 'Partido', foreign_key: :equipo_local_id, dependent: :destroy
+  has_many :partidos_visitante, class_name: 'Partido', foreign_key: :equipo_visitante_id, dependent: :destroy
 
-  validates :nombre, presence: { message: "no puede estar vacío" },
-                     uniqueness: { message: "ya está registrado" }
+  validates :nombre, presence: { message: 'no puede estar vacío' },
+                     uniqueness: { scope: :grupo_id, message: 'ya está registrado en este grupo' }
+
+  validate :nombre_unico_en_torneo
   validates :puntos, :goles_favor, :goles_contra, :partidos_jugados,
             :partidos_ganados, :partidos_empatados, :partidos_perdidos,
             numericality: { only_integer: true, greater_than_or_equal_to: 0 }
@@ -39,5 +41,20 @@ class Equipo < ApplicationRecord
     terceros = grupos.map { |g| g.tercer_lugar }.compact
     terceros.sort_by { |e| [-e.puntos, -e.diferencia_de_goles, -e.goles_favor] }
             .first(cantidad)
+  end
+
+  private
+
+  def nombre_unico_en_torneo
+    return if grupo.nil? || grupo.torneo.nil?
+
+    repetido = grupo.torneo.equipos
+                    .where(nombre: nombre)
+                    .where.not(id: id)
+                    .exists?
+
+    return unless repetido
+
+    errors.add(:nombre, 'ya está registrado en este torneo')
   end
 end

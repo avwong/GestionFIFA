@@ -49,11 +49,19 @@
       <h3 class="modal-title">Confirmar eliminación</h3>
       <button class="modal-close" onclick="cerrarConfirmacion()">✕</button>
     </div>
-    <p class="confirm-desc">
-      ¿Seguro que deseas eliminar <strong><%= @torneo.nombre %></strong>?
-      Esta acción borrará todos los grupos, equipos y partidos asociados y no se puede deshacer.
-    </p>
-    <div class="modal-actions">
+    <div class="confirm-content">
+      <div class="confirm-icon">⚠️</div>
+
+      <p class="confirm-title">
+        ¿Eliminar <strong><%= @torneo.nombre %></strong>?
+      </p>
+
+      <p class="confirm-desc">
+        Esta acción borrará todos los grupos, equipos y partidos asociados al torneo.
+        No se puede deshacer.
+      </p>
+    </div>
+    <div class="modal-actions modal-actions-confirm">
       <button type="button" class="btn-stroke" onclick="cerrarConfirmacion()">Cancelar</button>
       <%= button_to "Sí, eliminar", torneo_path(@torneo), method: :delete, class: "btn-red",
             form: { data: { turbo: false } } %>
@@ -63,11 +71,33 @@
 
 <script>
   function abrirConfirmacion() {
-    document.getElementById("modal-confirmar-borrar").style.display = "flex";
+    const modal = document.getElementById("modal-confirmar-borrar");
+    modal.style.display = "flex";
+
+    requestAnimationFrame(() => {
+      modal.classList.add("visible");
+    });
+
     document.addEventListener("keydown", function escHandler(e) {
-      if (e.key === "Escape") { cerrarConfirmacion(); document.removeEventListener("keydown", escHandler); }
+      if (e.key === "Escape") {
+        cerrarConfirmacion();
+        document.removeEventListener("keydown", escHandler);
+      }
     });
   }
-  function cerrarConfirmacion() { document.getElementById("modal-confirmar-borrar").style.display = "none"; }
-  function cerrarConfirmacionOverlay(e) { if (e.target.id === "modal-confirmar-borrar") cerrarConfirmacion(); }
+
+  function cerrarConfirmacion() {
+    const modal = document.getElementById("modal-confirmar-borrar");
+    modal.classList.remove("visible");
+
+    setTimeout(() => {
+      modal.style.display = "none";
+    }, 200);
+  }
+
+  function cerrarConfirmacionOverlay(e) {
+    if (e.target.id === "modal-confirmar-borrar") {
+      cerrarConfirmacion();
+    }
+  }
 </script>

@@ -115,7 +115,9 @@
       </div>
 
       <div class="modal-actions">
-        <a href="#" id="btn-borrar-equipo" class="btn-red" style="margin-right: auto;" data-turbo-method="delete" data-turbo-confirm="¿Seguro que deseas borrar este equipo?">Borrar</a>
+        <button type="button" id="btn-borrar-equipo" class="btn-red" style="margin-right: auto;" onclick="eliminarEquipo()">
+          Borrar
+        </button>
         <button type="button" class="btn-stroke" onclick="cerrarModal()">Cancelar</button>
         <%= f.submit "Guardar cambios", class: "btn-green" %>
       </div>
@@ -221,7 +223,6 @@
     document.getElementById("campo-pp").value = pp;
     document.getElementById("campo-gf").value = gf;
     document.getElementById("campo-gc").value = gc;
-    document.getElementById("btn-borrar-equipo").href = BASE_URL + "/" + id;
 
     const overlay = document.getElementById("modal-editar");
     overlay.style.display = "flex";
@@ -266,6 +267,34 @@
   function cerrarModalSiAfuera(event) {
     if (event.target === document.getElementById("modal-editar")) cerrarModal();
   }
+
+  function eliminarEquipo() {
+  if (!equipoActualId) return;
+
+  const confirmar = confirm("¿Seguro que deseas borrar este equipo?");
+  if (!confirmar) return;
+
+  const token = document.querySelector('meta[name="csrf-token"]').content;
+
+  const form = document.createElement("form");
+  form.method = "post";
+  form.action = BASE_URL + "/" + equipoActualId;
+
+  const metodo = document.createElement("input");
+  metodo.type = "hidden";
+  metodo.name = "_method";
+  metodo.value = "delete";
+
+  const csrf = document.createElement("input");
+  csrf.type = "hidden";
+  csrf.name = "authenticity_token";
+  csrf.value = token;
+
+  form.appendChild(metodo);
+  form.appendChild(csrf);
+  document.body.appendChild(form);
+  form.submit();
+}
 
   function abrirModalCrear() {
     document.getElementById("form-crear-equipo").reset();

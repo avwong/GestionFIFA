@@ -1381,3 +1381,263 @@ body {
     text-align: center;
   }
 }
+
+/* =============================================
+   CLASIFICADOS
+   ============================================= */
+
+.clasificados-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.clasificados-header h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--black);
+  margin-bottom: 6px;
+}
+
+.clasificados-header p {
+  font-size: 13px;
+  color: var(--gray-muted);
+  line-height: 1.5;
+}
+
+.clasificados-aviso {
+  background-color: #FFF8E6;
+  border: 1px solid #E8D18A;
+  color: #7A5B00;
+  border-radius: 5px;
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.clasificados-section-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--black);
+  margin: 20px 0 12px;
+}
+
+.clasificados-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 12px;
+}
+
+.clasificado-card {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background-color: var(--white);
+  overflow: hidden;
+}
+
+.clasificado-card-title {
+  background-color: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.clasificado-row {
+  display: grid;
+  grid-template-columns: 34px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.clasificado-row:last-child {
+  border-bottom: none;
+}
+
+.clasificado-pos {
+  font-weight: 700;
+  color: var(--green);
+}
+
+.clasificado-name {
+  font-weight: 600;
+  color: var(--black);
+}
+
+.clasificado-points {
+  color: var(--gray-text);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tercer-row {
+  background-color: var(--bg);
+}
+
+.tercer-row .clasificado-pos {
+  color: var(--gray-muted);
+}
+
+.thirds-table-wrapper {
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  background-color: var(--white);
+}
+
+@media (max-width: 720px) {
+  .clasificados-header {
+    flex-direction: column;
+  }
+
+  .fase-progress-card {
+    width: 100%;
+  }
+
+  .clasificados-summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =============================================
+   LISTA DE CLASIFICADOS A ELIMINATORIA
+   ============================================= */
+
+.qualified-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.qualified-item {
+  display: grid;
+  grid-template-columns: 34px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background-color: var(--white);
+  padding: 10px 12px;
+}
+
+.qualified-number {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background-color: var(--green-light);
+  color: var(--green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.qualified-main {
+  min-width: 0;
+}
+
+.qualified-main strong {
+  display: block;
+  font-size: 13px;
+  color: var(--black);
+  margin-bottom: 2px;
+}
+
+.qualified-main small {
+  display: block;
+  font-size: 11px;
+  color: var(--gray-muted);
+  line-height: 1.4;
+}
+
+.qualified-badge {
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 20px;
+  padding: 4px 8px;
+  white-space: nowrap;
+}
+
+.qualified-badge-direct {
+  background-color: var(--green-light);
+  color: var(--green);
+}
+
+.qualified-badge-third {
+  background-color: #EEF2FF;
+  color: #4F46E5;
+}
+
+/* =============================================
+   TABLA DE TERCEROS
+   ============================================= */
+
+.tercero-eliminado td {
+  color: var(--gray-muted);
+  background-color: #FAFAFA;
+}
+
+.tercero-eliminado td.col-team {
+  color: var(--gray-text);
+}
+
+.third-status {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 20px;
+  padding: 3px 7px;
+  white-space: nowrap;
+}
+
+.third-status-in {
+  color: var(--green);
+  background-color: var(--green-light);
+}
+
+.third-status-out {
+  color: var(--gray-muted);
+  background-color: var(--bg);
+  border: 1px solid var(--border);
+}
+
+@media (max-width: 720px) {
+  .qualified-list {
+    grid-template-columns: 1fr;
+  }
+
+  .qualified-item {
+    grid-template-columns: 30px 1fr;
+  }
+
+  .qualified-badge {
+    grid-column: 2;
+    justify-self: flex-start;
+  }
+}
+
+.clasificados-header-simple {
+  margin-bottom: 18px;
+}
+
+.clasificados-header-simple h3 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--black);
+  margin-bottom: 6px;
+}
+
+.clasificados-header-simple p {
+  font-size: 13px;
+  color: var(--gray-muted);
+  line-height: 1.5;
+}

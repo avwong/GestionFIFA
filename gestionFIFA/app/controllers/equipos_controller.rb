@@ -4,6 +4,10 @@ class EquiposController < ApplicationController
 
   def index
     @equipos = @torneo.equipos.includes(:grupo).order(:nombre)
+    nombres_en_torneo = @torneo.equipos.pluck(:nombre)
+    @nombres_existentes = Equipo.where.not(grupo_id: @torneo.grupos.pluck(:id))
+                                .distinct.pluck(:nombre).sort
+                                .reject { |n| nombres_en_torneo.include?(n) }
   end
 
   def create

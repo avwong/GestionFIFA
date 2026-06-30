@@ -61,7 +61,7 @@
       </div>
       <h3 class="coming-soon-title">Podio no disponible aún</h3>
       <p class="coming-soon-desc">
-        El podio se mostrará una vez que se hayan jugado la final y el partido por el tercer lugar.
+        El podio se mostrará una vez hayan concluido los partidos.
       </p>
     </div>
   <% end %>
@@ -69,9 +69,6 @@
 <% elsif @seccion == "fase_grupos" %>
   <!-- ========== FASE DE GRUPOS ========== -->
   <div class="section-actions">
-    <p class="section-help">
-      Las tablas se actualizan automáticamente con los resultados de los partidos.
-    </p>
 
     <div class="section-actions-right">
       <%= button_to "Generar partidos de grupos",
@@ -322,7 +319,16 @@
 
     <% if @terceros_ordenados.any? %>
       <div class="thirds-table-wrapper">
-        <table class="group-table">
+        <table class="group-table" style="table-layout: fixed; width: 100%;">
+          <colgroup>
+            <col style="width: 36px;">
+            <col>
+            <col style="width: 56px;">
+            <col style="width: 46px;">
+            <col style="width: 46px;">
+            <col style="width: 46px;">
+            <col style="width: 90px;">
+          </colgroup>
           <thead>
             <tr>
               <th class="col-stat">#</th>
@@ -366,9 +372,6 @@
 <% else %>
   <!-- ========== ELIMINACIÓN DIRECTA ========== -->
   <div class="section-actions">
-    <p class="section-help">
-      El bracket se genera con los 32 clasificados ordenados por rendimiento en fase de grupos.
-    </p>
 
     <div class="section-actions-right">
       <% if @torneo.partidos_eliminacion.any? %>
@@ -404,10 +407,6 @@
           <path d="M8 21h8M12 17v4M6.5 3h11a.5.5 0 0 1 .5.5v3a6 6 0 0 1-12 0v-3a.5.5 0 0 1 .5-.5z"/>
         </svg>
       </div>
-      <h3 class="coming-soon-title">Bracket listo para generarse</h3>
-      <p class="coming-soon-desc">
-        Ya existen 32 clasificados. Presiona “Generar bracket” para crear los dieciseisavos de final.
-      </p>
     </div>
   <% else %>
     <div class="bracket-stage">

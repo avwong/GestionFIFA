@@ -156,7 +156,9 @@
                   <% partidos_grupo.each do |partido| %>
                     <div class="match-editor-row">
                       <label class="match-played-check">
-                        <%= check_box_tag "partidos[#{partido.id}][jugado]", "1", partido.finalizado?, id: "partido_#{partido.id}_jugado" %>
+                        <%= check_box_tag "partidos[#{partido.id}][jugado]", "1", partido.finalizado?,
+                              id: "partido_#{partido.id}_jugado",
+                              onchange: "toggleJugado(#{partido.id}, this)" %>
                         Jugado
                       </label>
 
@@ -223,9 +225,24 @@
 
       function marcarPartidoJugado(id) {
         const check = document.getElementById("partido_" + id + "_jugado");
+        const gl = document.querySelector(`[name="partidos[${id}][goles_local]"]`);
+        const gv = document.querySelector(`[name="partidos[${id}][goles_visitante]"]`);
 
-        if (check) {
+        if (check && (gl?.value !== "" || gv?.value !== "")) {
           check.checked = true;
+        }
+      }
+
+      function toggleJugado(id, checkbox) {
+        const gl = document.querySelector(`[name="partidos[${id}][goles_local]"]`);
+        const gv = document.querySelector(`[name="partidos[${id}][goles_visitante]"]`);
+
+        if (checkbox.checked) {
+          if (gl && gl.value === "") gl.value = "0";
+          if (gv && gv.value === "") gv.value = "0";
+        } else {
+          if (gl) gl.value = "";
+          if (gv) gv.value = "";
         }
       }
     </script>

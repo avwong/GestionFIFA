@@ -41,7 +41,7 @@ body {
 
 .page-wrapper {
   width: 100%;
-  max-width: 960px;
+  max-width: 1800px;
   display: flex;
   flex-direction: column;
   gap: 16px;

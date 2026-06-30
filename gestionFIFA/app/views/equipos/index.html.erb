@@ -94,17 +94,13 @@
     </div>
 
     <div class="confirm-content">
-      <div class="confirm-icon">
-        <span>⚠️</span>
-      </div>
 
       <p class="confirm-title">
         ¿Eliminar <strong id="nombre-equipo-borrar">este equipo</strong>?
       </p>
 
       <p class="confirm-desc">
-        Esta acción eliminará el equipo del torneo y también los partidos de fase de grupos donde participa.
-        Las estadísticas del grupo se recalcularán automáticamente.
+        Esta acción eliminará el equipo del torneo.
       </p>
     </div>
 
@@ -124,10 +120,41 @@
     </div>
 
     <%= form_with url: torneo_equipos_path(@torneo), method: :post, scope: :equipo, id: "form-crear-equipo", local: true, authenticity_token: true, data: { turbo: false } do |f| %>
-      <div class="form-group">
-        <label class="form-label">Nombre del país</label>
-        <%= f.text_field :nombre, class: "form-input", placeholder: "Nombre del equipo", required: true %>
-      </div>
+
+      <% if @nombres_existentes.any? %>
+        <div class="crear-tabs">
+          <button type="button" class="crear-tab active" onclick="cambiarTab('existente')">Seleccionar existente</button>
+          <button type="button" class="crear-tab" onclick="cambiarTab('nuevo')">Escribir nuevo</button>
+        </div>
+
+        <div id="tab-existente">
+          <div class="form-group">
+            <input type="text" id="buscador-existentes" class="form-input" placeholder="Buscar país…" oninput="filtrarExistentes()">
+          </div>
+          <div class="equipos-existentes-lista" id="lista-existentes">
+            <% @nombres_existentes.each do |nombre| %>
+              <button type="button" class="equipo-existente-btn" onclick="seleccionarExistente('<%= j nombre %>')">
+                <%= nombre %>
+              </button>
+            <% end %>
+          </div>
+        </div>
+
+        <div id="tab-nuevo" style="display:none;">
+          <div class="form-group">
+            <label class="form-label">Nombre del país</label>
+            <input type="text" id="crear-campo-nombre" class="form-input" placeholder="Nombre del equipo"
+                   oninput="document.getElementById('crear-nombre-hidden').value = this.value; document.getElementById('btn-añadir-equipo').disabled = this.value.trim() === ''">
+          </div>
+        </div>
+
+        <input type="hidden" id="crear-nombre-hidden" name="equipo[nombre]">
+      <% else %>
+        <div class="form-group">
+          <label class="form-label">Nombre del país</label>
+          <%= f.text_field :nombre, id: "crear-campo-nombre", class: "form-input", placeholder: "Nombre del equipo", required: true %>
+        </div>
+      <% end %>
 
       <div class="form-group">
         <label class="form-label">Grupo</label>
@@ -142,13 +169,13 @@
         </select>
       </div>
 
-      <div class="form-info-box">
-        El equipo iniciará con 0 puntos, 0 partidos jugados y 0 goles. Estos datos se actualizarán desde la fase de grupos.
+      <div id="equipo-seleccionado-aviso" class="form-info-box" style="display:none;">
+        Equipo seleccionado: <strong id="equipo-seleccionado-nombre"></strong>
       </div>
 
       <div class="modal-actions">
         <button type="button" class="btn-stroke" onclick="cerrarModalCrear()">Cancelar</button>
-        <%= f.submit "Añadir equipo", class: "btn-green" %>
+        <%= f.submit "Añadir equipo", id: "btn-añadir-equipo", class: "btn-green", disabled: true %>
       </div>
     <% end %>
   </div>
@@ -279,9 +306,76 @@ function confirmarEliminarEquipo() {
     document.getElementById("form-crear-equipo").reset();
     document.getElementById("reemplazo-section").style.display = "none";
     document.getElementById("campo-reemplazo").value = "";
+
+    const hidden = document.getElementById("crear-nombre-hidden");
+    if (hidden) hidden.value = "";
+
+    const aviso = document.getElementById("equipo-seleccionado-aviso");
+    if (aviso) aviso.style.display = "none";
+
+    const btn = document.getElementById("btn-añadir-equipo");
+    if (btn) btn.disabled = true;
+
+    const buscador = document.getElementById("buscador-existentes");
+    if (buscador) { buscador.value = ""; filtrarExistentes(); }
+
+    cambiarTab("existente");
+
     const overlay = document.getElementById("modal-crear");
     overlay.style.display = "flex";
     requestAnimationFrame(() => overlay.classList.add("visible"));
+  }
+
+  function cambiarTab(tab) {
+    const tabExistente = document.getElementById("tab-existente");
+    const tabNuevo     = document.getElementById("tab-nuevo");
+    const tabs         = document.querySelectorAll(".crear-tab");
+    const hidden       = document.getElementById("crear-nombre-hidden");
+    const btn          = document.getElementById("btn-añadir-equipo");
+    const aviso        = document.getElementById("equipo-seleccionado-aviso");
+
+    if (!tabExistente || !tabNuevo) return;
+
+    if (tab === "existente") {
+      tabExistente.style.display = "";
+      tabNuevo.style.display = "none";
+      tabs[0].classList.add("active");
+      tabs[1].classList.remove("active");
+      if (hidden) hidden.value = "";
+      if (aviso) aviso.style.display = "none";
+      if (btn) btn.disabled = true;
+    } else {
+      tabExistente.style.display = "none";
+      tabNuevo.style.display = "";
+      tabs[0].classList.remove("active");
+      tabs[1].classList.add("active");
+      if (hidden) hidden.value = "";
+      if (aviso) aviso.style.display = "none";
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  function seleccionarExistente(nombre) {
+    const hidden = document.getElementById("crear-nombre-hidden");
+    if (hidden) hidden.value = nombre;
+
+    document.querySelectorAll(".equipo-existente-btn").forEach(b => b.classList.remove("selected"));
+    event.currentTarget.classList.add("selected");
+
+    const aviso = document.getElementById("equipo-seleccionado-aviso");
+    const nombreEl = document.getElementById("equipo-seleccionado-nombre");
+    if (aviso) aviso.style.display = "";
+    if (nombreEl) nombreEl.textContent = nombre;
+
+    const btn = document.getElementById("btn-añadir-equipo");
+    if (btn) btn.disabled = false;
+  }
+
+  function filtrarExistentes() {
+    const texto = document.getElementById("buscador-existentes").value.toLowerCase();
+    document.querySelectorAll(".equipo-existente-btn").forEach(btn => {
+      btn.style.display = btn.textContent.toLowerCase().includes(texto) ? "" : "none";
+    });
   }
 
   function actualizarReemplazo() {

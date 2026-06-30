@@ -13,27 +13,6 @@
       <%= f.text_field :nombre, class: "form-input", required: true %>
     </div>
 
-    <div class="form-group">
-      <label class="form-label">Tipo de torneo</label>
-      <div class="tipo-selector">
-        <label class="tipo-option">
-          <input type="radio" name="torneo[tipo]" value="mundial" <%= @torneo.tipo == "mundial" ? "checked" : "" %>>
-          <div class="tipo-option-card">
-            <span class="tipo-option-icon">🏆</span>
-            <span class="tipo-option-label">Mundial</span>
-            <span class="tipo-option-desc">Fase de grupos + eliminatorias (estilo FIFA)</span>
-          </div>
-        </label>
-        <label class="tipo-option">
-          <input type="radio" name="torneo[tipo]" value="bracket" <%= @torneo.tipo == "bracket" ? "checked" : "" %>>
-          <div class="tipo-option-card">
-            <span class="tipo-option-icon">⚡</span>
-            <span class="tipo-option-label">Bracket</span>
-            <span class="tipo-option-desc">Eliminación directa desde el inicio</span>
-          </div>
-        </label>
-      </div>
-    </div>
 
     <div class="gestionar-actions">
       <button type="button" class="btn-red" onclick="abrirConfirmacion()">Eliminar torneo</button>
@@ -50,17 +29,12 @@
       <button class="modal-close" onclick="cerrarConfirmacion()">✕</button>
     </div>
     <div class="confirm-content">
-      <div class="confirm-icon">
-        <span>⚠️</span>
-      </div>
-
       <p class="confirm-title">
         ¿Eliminar <strong><%= @torneo.nombre %></strong>?
       </p>
 
       <p class="confirm-desc">
-        Esta acción borrará todos los grupos, equipos y partidos asociados al torneo.
-        No se puede deshacer.
+        Esta acción borrará TODO el torneo.
       </p>
     </div>
     <div class="modal-actions modal-actions-confirm">

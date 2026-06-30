@@ -55,27 +55,7 @@
         <%= f.text_field :nombre, class: "form-input", placeholder: "Ej. Mundial 2026, Copa América…", required: true,
               name: "torneo[nombre]" %>
       </div>
-      <div class="form-group">
-        <label class="form-label">Tipo de torneo</label>
-        <div class="tipo-selector">
-          <label class="tipo-option">
-            <input type="radio" name="torneo[tipo]" value="mundial" checked>
-            <div class="tipo-option-card">
-              <span class="tipo-option-icon">🏆</span>
-              <span class="tipo-option-label">Mundial</span>
-              <span class="tipo-option-desc">Fase de grupos + eliminatorias (estilo FIFA)</span>
-            </div>
-          </label>
-          <label class="tipo-option">
-            <input type="radio" name="torneo[tipo]" value="bracket">
-            <div class="tipo-option-card">
-              <span class="tipo-option-icon">⚡</span>
-              <span class="tipo-option-label">Bracket</span>
-              <span class="tipo-option-desc">Eliminación directa desde el inicio</span>
-            </div>
-          </label>
-        </div>
-      </div>
+      <input type="hidden" name="torneo[tipo]" value="mundial">
       <div class="modal-actions">
         <button type="button" class="btn-stroke" onclick="cerrarModal('modal-nuevo-torneo')">Cancelar</button>
         <%= f.submit "Crear Torneo", class: "btn-green" %>

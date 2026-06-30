@@ -233,7 +233,7 @@ class TorneosController < ApplicationController
     @clasificados_directos = @torneo.clasificados_directos
     @mejores_terceros = @torneo.mejores_terceros
     @terceros_ordenados = @torneo.terceros_ordenados
-    @clasificados_eliminatoria = @torneo.clasificados_eliminatoria
+    @clasificados_eliminatoria = @torneo.clasificados_rankeados
     @total_partidos_grupos = @torneo.total_partidos_fase_grupos
     @partidos_finalizados_grupos = @torneo.partidos_fase_grupos_finalizados
     @porcentaje_fase_grupos = @torneo.porcentaje_fase_grupos
